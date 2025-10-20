@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.ropeproject/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Development artifacts
+context*.txt
+*.ipynb
+.ipynb_checkpoints/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test outputs
+test-results/
+coverage/
+.coverage
+htmlcov/
+
+# Session data (potentially sensitive)
+sessions/
+exports/
+*.jsonl
+
+# Archive directory (legacy files)
+archive/

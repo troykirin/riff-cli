@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "riff-cli"
+version = "0.1.0"
+description = "Riff: scan, fix, and explore JSONL conversation logs with a fast CLI/TUI"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Nabia", email = "dev@nabia.tech" }]
+dependencies = [
+  "rich>=13.7",
+  "prompt_toolkit>=3.0",
+  "rapidfuzz>=3.6"
+]
+
+[project.scripts]
+riff = "riff.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+packages = ["riff"]
+
+

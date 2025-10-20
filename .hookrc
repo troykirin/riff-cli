@@ -1,0 +1,159 @@
+#!/bin/bash
+# Riff CLI Development Environment Configuration
+# This file sets up the development environment with standardized configuration
+
+# Riff project root
+RIFF_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# XDG-Compliant Paths (from ~/.zshenv)
+export NABI_RUNTIME_DIR="${NABI_RUNTIME_DIR:-$HOME/.nabi}"
+export NABI_VENV_ROOT="${NABI_VENV_ROOT:-$NABI_RUNTIME_DIR/venvs}"
+export RIFF_VENV="$NABI_VENV_ROOT/riff-cli"
+
+# Activate Python virtual environment from federation runtime
+if [ -f "$RIFF_VENV/bin/activate" ]; then
+  source "$RIFF_VENV/bin/activate"
+else
+  echo "⚠️  Warning: Riff venv not found at $RIFF_VENV"
+  echo "   Creating venv..."
+  python3 -m venv "$RIFF_VENV"
+  source "$RIFF_VENV/bin/activate"
+  pip install -q -e "$RIFF_ROOT"
+fi
+
+# Set Python path
+export PYTHONPATH="$RIFF_ROOT/src:$PYTHONPATH"
+
+# =============================================================================
+# RIFF DEVELOPMENT ENVIRONMENT
+# =============================================================================
+
+# Set development environment
+export RIFF_ENV=development
+
+# Qdrant configuration
+export RIFF_QDRANT_URL="${RIFF_QDRANT_URL:-http://localhost:6333}"
+export RIFF_QDRANT_COLLECTION="${RIFF_QDRANT_COLLECTION:-claude_sessions}"
+
+# Search backend configuration
+export RIFF_SEARCH_ENABLED=true
+export RIFF_EMBEDDING_MODEL="${RIFF_EMBEDDING_MODEL:-all-MiniLM-L6-v2}"
+
+# Preview configuration
+export RIFF_PREVIEW_MAX_LENGTH=200
+export RIFF_PREVIEW_LINES=3
+
+# =============================================================================
+# DEVELOPMENT TOOLS AND UTILITIES
+# =============================================================================
+
+# Set development-specific aliases
+alias riff-dev="uv run riff"
+alias riff-test="uv run pytest"
+alias riff-search-test="uv run riff search --ai"
+alias riff-status="echo 'Environment: $RIFF_ENV' && echo 'Qdrant: $RIFF_QDRANT_URL' && python -c 'from src.riff.search import QdrantSearcher; s = QdrantSearcher(\"$RIFF_QDRANT_URL\"); print(\"✓ Qdrant available\" if s.is_available() else \"✗ Qdrant unavailable\")' 2>/dev/null || echo '✗ Search backend not configured'"
+
+# Function to check riff health
+riff-health() {
+    echo "=== Riff CLI Health Check ==="
+    echo "Environment: $RIFF_ENV"
+    echo "Python: $(python --version 2>&1)"
+    echo "Qdrant URL: $RIFF_QDRANT_URL"
+
+    echo ""
+    echo "Checking backends..."
+    if command -v pytest &> /dev/null; then
+        echo "✓ pytest available"
+    else
+        echo "✗ pytest not found"
+    fi
+
+    # Test Qdrant connection if configured
+    if [ "$RIFF_SEARCH_ENABLED" = "true" ]; then
+        python -c "
+from src.riff.search import QdrantSearcher
+try:
+    s = QdrantSearcher('$RIFF_QDRANT_URL')
+    if s.is_available():
+        print('✓ Qdrant search backend available')
+    else:
+        print('✗ Qdrant not responding')
+except Exception as e:
+    print('✗ Qdrant error:', str(e))
+" 2>/dev/null || echo "✗ Search backend check failed"
+    fi
+}
+
+# Function to run tests
+riff-test-all() {
+    echo "Running riff test suite..."
+    uv run pytest -v --cov=src/riff tests/ 2>/dev/null || echo "Tests require pytest installation: uv sync --extra dev"
+}
+
+# Function to validate project structure
+riff-validate() {
+    echo "=== Validating Riff Project Structure ==="
+    local errors=0
+
+    # Check required directories
+    for dir in src/riff src/riff/classic src/riff/search src/riff/enhance; do
+        if [ -d "$dir" ]; then
+            echo "✓ $dir"
+        else
+            echo "✗ Missing: $dir"
+            ((errors++))
+        fi
+    done
+
+    # Check required files
+    for file in src/riff/cli.py pyproject.toml .envrc .hookrc; do
+        if [ -f "$file" ]; then
+            echo "✓ $file"
+        else
+            echo "✗ Missing: $file"
+            ((errors++))
+        fi
+    done
+
+    if [ $errors -eq 0 ]; then
+        echo ""
+        echo "✓ Project structure valid"
+        return 0
+    else
+        echo ""
+        echo "✗ Found $errors issues"
+        return 1
+    fi
+}
+
+# Function to show available commands
+riff-help() {
+    echo "=== Riff CLI Development Commands ==="
+    echo ""
+    echo "Main:"
+    echo "  riff-dev <cmd>          - Run riff command (e.g., riff-dev search 'query')"
+    echo "  riff-status             - Show current configuration status"
+    echo "  riff-health             - Run health check"
+    echo ""
+    echo "Testing:"
+    echo "  riff-test               - Run pytest"
+    echo "  riff-test-all           - Full test suite with coverage"
+    echo ""
+    echo "Project:"
+    echo "  riff-validate           - Validate project structure"
+    echo "  riff-help               - Show this help message"
+    echo ""
+    echo "Environment Variables:"
+    echo "  RIFF_ENV                - Current environment (default: development)"
+    echo "  RIFF_QDRANT_URL         - Qdrant server URL (default: http://localhost:6333)"
+    echo "  RIFF_SEARCH_ENABLED     - Enable search backend (default: true)"
+    echo ""
+}
+
+echo '⚙️ Riff CLI development environment loaded'
+echo "   Environment: $RIFF_ENV"
+echo "   Qdrant: $RIFF_QDRANT_URL"
+echo "   Python path: $PYTHONPATH"
+echo ""
+echo "   Type 'riff-help' to see available commands"
+echo ""

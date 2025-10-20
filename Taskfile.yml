@@ -1,0 +1,227 @@
+version: '3'
+
+vars:
+  QDRANT_URL: 'http://localhost:6333'
+  NABI_BIN: '{{.HOME}}/.nabi/bin'
+
+tasks:
+  # ==========================================
+  # Primary User Commands
+  # ==========================================
+
+  riff:
+    desc: "Launch interactive TUI (primary interface)"
+    cmds:
+      - uv run riff browse
+    silent: false
+
+  search:
+    desc: "Quick semantic search: task search -- 'your query'"
+    cmds:
+      - uv run riff search "{{.CLI_ARGS}}"
+    silent: false
+
+  graph:
+    desc: "Visualize conversation DAG: task graph -- session-uuid"
+    cmds:
+      - uv run riff graph {{.CLI_ARGS}}
+    silent: false
+
+  # ==========================================
+  # Docker Infrastructure
+  # ==========================================
+
+  docker:up:
+    desc: "Start Qdrant service"
+    dir: infrastructure
+    cmds:
+      - docker-compose up -d
+      - echo "✅ Qdrant started at http://localhost:6333"
+    silent: false
+
+  docker:down:
+    desc: "Stop Qdrant service"
+    dir: infrastructure
+    cmds:
+      - docker-compose down
+    silent: false
+
+  docker:logs:
+    desc: "View Qdrant logs"
+    dir: infrastructure
+    cmds:
+      - docker-compose logs -f qdrant
+    silent: false
+
+  docker:restart:
+    desc: "Restart Qdrant service"
+    deps: [docker:down, docker:up]
+
+  docker:status:
+    desc: "Check Qdrant health"
+    cmds:
+      - |
+        if curl -s {{.QDRANT_URL}}/healthz > /dev/null 2>&1; then
+          echo "✅ Qdrant is healthy at {{.QDRANT_URL}}"
+        else
+          echo "❌ Qdrant not responding at {{.QDRANT_URL}}"
+          exit 1
+        fi
+    silent: false
+
+  # ==========================================
+  # Search & JSONL Operations
+  # ==========================================
+
+  search:test:
+    desc: "Test search functionality"
+    cmds:
+      - uv run riff search "memory"
+      - echo "✅ Search test complete"
+    silent: false
+
+  scan:
+    desc: "Scan JSONL for issues: task scan -- ~/path/to/files"
+    cmds:
+      - uv run riff scan {{.CLI_ARGS}}
+    silent: false
+
+  fix:
+    desc: "Fix JSONL file: task fix -- session.jsonl"
+    cmds:
+      - uv run riff fix {{.CLI_ARGS}}
+    silent: false
+
+  # ==========================================
+  # Testing
+  # ==========================================
+
+  test:all:
+    desc: "Run full test suite"
+    dir: tests
+    cmds:
+      - task: test:unit
+      - task: test:integration
+
+  test:unit:
+    desc: "Run unit tests"
+    dir: tests
+    cmds:
+      - uv run pytest unit/ -v --cov=riff --cov-report=term-missing
+    silent: false
+
+  test:integration:
+    desc: "Run integration tests"
+    dir: tests
+    cmds:
+      - uv run pytest test_search_live.py -v
+    silent: false
+
+  test:coverage:
+    desc: "Generate coverage report"
+    dir: tests
+    cmds:
+      - uv run pytest --cov=riff --cov-report=html --cov-report=term
+      - echo "Coverage report at tests/htmlcov/index.html"
+    silent: false
+
+  test:graph:
+    desc: "Run graph module tests"
+    cmds:
+      - uv run pytest tests/graph/ -v --cov=riff.graph --cov-report=term-missing
+    silent: false
+
+  # ==========================================
+  # Development
+  # ==========================================
+
+  dev:setup:
+    desc: "Setup development environment"
+    cmds:
+      - uv sync
+      - echo "✅ Development environment ready"
+      - echo "💡 Run 'source .hookrc' to activate"
+    silent: false
+
+  dev:lint:
+    desc: "Run code linters"
+    cmds:
+      - uv run ruff check src/
+      - echo "✅ Linting complete"
+    silent: false
+
+  dev:format:
+    desc: "Format code"
+    cmds:
+      - uv run ruff format src/
+      - echo "✅ Formatting complete"
+    silent: false
+
+  # ==========================================
+  # Federation Integration
+  # ==========================================
+
+  nabi:register:
+    desc: "Register riff with Nabi CLI federation"
+    cmds:
+      - |
+        if [ ! -d "{{.NABI_BIN}}" ]; then
+          mkdir -p {{.NABI_BIN}}
+        fi
+        ln -sf {{.HOME}}/.nabi/venvs/riff-cli/bin/riff {{.NABI_BIN}}/riff
+        echo "✅ riff registered at {{.NABI_BIN}}/riff"
+        echo "💡 Ensure {{.NABI_BIN}} is in your PATH"
+    silent: false
+
+  nabi:status:
+    desc: "Check Nabi integration status"
+    cmds:
+      - |
+        if [ -L "{{.NABI_BIN}}/riff" ]; then
+          echo "✅ riff is registered with Nabi CLI"
+          echo "   Symlink: {{.NABI_BIN}}/riff"
+          echo "   Target: $(readlink {{.NABI_BIN}}/riff)"
+        else
+          echo "❌ riff not registered. Run: task nabi:register"
+        fi
+    silent: false
+
+  # ==========================================
+  # Verification & Health Checks
+  # ==========================================
+
+  verify:
+    desc: "Run all verification checks"
+    cmds:
+      - task: docker:status
+      - task: search:test
+      - task: test:all
+      - task: nabi:status
+      - echo "✅ All verification checks passed"
+
+  health:
+    desc: "Quick health check"
+    cmds:
+      - task: docker:status
+      - echo "✅ System healthy"
+    silent: false
+
+  # ==========================================
+  # Utilities
+  # ==========================================
+
+  clean:
+    desc: "Clean build artifacts and caches"
+    cmds:
+      - rm -rf **/__pycache__
+      - rm -rf .pytest_cache
+      - rm -rf .coverage
+      - rm -rf htmlcov
+      - echo "✅ Cleaned build artifacts"
+    silent: false
+
+  help:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+    silent: true
