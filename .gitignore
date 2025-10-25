@@ -1,0 +1,66 @@
+# Riff CLI .gitignore
+
+# Backup files
+*.bak
+*~
+.*.swp
+.*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+
+# Test outputs
+test-results/
+*.test.json
+*.test.jsonl
+
+# Build artifacts (if any)
+dist/
+build/
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Environment files (if used)
+.env
+.env.local
+
+# Python cache (for intent enhancer)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Nushell cache
+.nu-cache/
+
+# Local test data
+test-data/
+*.local.json
+*.local.jsonl
+
+# Documentation builds
+docs/_build/
+site/
+
+# Logs
+*.log
+logs/
+
+# Installation test artifacts
+.install-test/
