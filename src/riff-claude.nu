@@ -6,7 +6,7 @@
 
 def main [
     search_term?: string = "",           # Optional search term or intent description
-    --path (-p): string = ".",          # Base path to search (default: current directory)
+    --path (-p): string = "~/.claude/projects",  # Base path to search (default: Claude projects)
     --format (-f): string = "auto",     # Format: jsonl, claude, auto
     --intent (-i),                      # Enable intent-driven search
     --recursive (-r): int = 3,          # Recursive enhancement depth (1-5)
@@ -77,10 +77,10 @@ def detect_format [path: string] {
 # Generate search keywords using intent analysis
 def generate_search_keywords [intent: string, depth: int, verbose: bool] {
     let keywords = [$intent]
-    
+
     # Use Python intent enhancer for advanced keyword generation
     let enhanced_result = try {
-        python3 ($env.PWD | path join "../riff-cli/src/intent_enhancer_simple.py") $intent $depth | from json
+        python3 ~/nabia/tools/riff-cli/src/intent_enhancer_simple.py $intent $depth | from json
     } catch {
         if $verbose {
             print "Warning: Python intent enhancer failed, using pattern fallback"
@@ -100,28 +100,28 @@ def generate_search_keywords [intent: string, depth: int, verbose: bool] {
     $keywords | append $expanded_keywords | uniq
 }
 
-# Pattern-based keyword expansion (placeholder for Grok integration)
+# Pattern-based keyword expansion with partial matching support
 def expand_keywords_pattern [intent: string] {
     let intent_lower = ($intent | str downcase)
     let keywords = []
-    
-    # Technical terms expansion
-    let keywords = if ($intent_lower | str contains "nabia") {
-        $keywords | append ["federation", "memchain", "orchestration", "agent"]
+
+    # Technical terms expansion with partial matching
+    let keywords = if ($intent_lower | str contains "nabia") or ($intent_lower | str contains "nabi") {
+        $keywords | append ["nabia", "federation", "memchain", "orchestration", "agent", "coordination"]
     } else { $keywords }
-    
+
     let keywords = if ($intent_lower | str contains "claude") {
-        $keywords | append ["assistant", "conversation", "chat", "ai"]
+        $keywords | append ["assistant", "conversation", "chat", "ai", "llm", "dialogue"]
     } else { $keywords }
-    
+
     let keywords = if ($intent_lower | str contains "federation") {
-        $keywords | append ["agent", "coordination", "protocol", "handoff"]
+        $keywords | append ["agent", "coordination", "protocol", "handoff", "distributed"]
     } else { $keywords }
-    
+
     let keywords = if ($intent_lower | str contains "linear") {
-        $keywords | append ["issue", "project", "task", "ticket"]
+        $keywords | append ["issue", "project", "task", "ticket", "workflow"]
     } else { $keywords }
-    
+
     $keywords
 }
 
@@ -325,14 +325,26 @@ def display_results [results: any, json_output: bool, uuid_only: bool, no_fzf: b
         $results | get uuid | uniq
     } else if $no_fzf {
         $results | each { |result|
-            let display_name = if ($result.name | is-empty) { $result.context } else { $result.name }
+            # Safe field access: try 'name' first, fallback to 'context'
+            let name_field = ($result | get -i name)
+            let display_name = if ($name_field != null and ($name_field | str length) > 0) {
+                $name_field
+            } else {
+                ($result | get -i context | default "")
+            }
             $"($result.type) | ($result.uuid) | ($display_name) | ($result.file)"
         }
     } else {
         # Prepare data for fzf
         let fzf_input = (
             $results | each { |result|
-                let display_name = if ($result.name | is-empty) { $result.context } else { $result.name }
+                # Safe field access: try 'name' first, fallback to 'context'
+                let name_field = ($result | get -i name)
+                let display_name = if ($name_field != null and ($name_field | str length) > 0) {
+                    $name_field
+                } else {
+                    ($result | get -i context | default "")
+                }
                 $"($result.type) | ($result.uuid) | ($display_name) | ($result.file)"
             }
             | str join (char nl)
