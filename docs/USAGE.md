@@ -377,7 +377,7 @@ riff "keyword" --no-fzf
 - Check [INSTALLATION.md](INSTALLATION.md) for setup details
 - See [examples/](../examples/) for script examples
 - Explore intent-driven search with `--intent` flag
-- Integrate with NabiOS (see [integration/NABIÓS.md](integration/NABIÓS.md))
+- Integrate with NabiOS (see [integration/NABIOS.md](../integration/NABIOS.md))
 
 ## Command Reference
 

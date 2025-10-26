@@ -137,12 +137,12 @@ riff "project work" --intent
 
 ### NabiOS Integration (Optional)
 
-Riff CLI can integrate with the [NabiOS](docs/integration/NABIÓS.md) federation ecosystem for advanced features like:
+Riff CLI can integrate with the [NabiOS](docs/integration/NABIOS.md) federation ecosystem for advanced features like:
 - Cross-agent search coordination
 - Persistent memory integration
 - Federated knowledge graphs
 
-See [docs/integration/NABIÓS.md](docs/integration/NABIÓS.md) for details.
+See [docs/integration/NABIOS.md](docs/integration/NABIOS.md) for details.
 
 ## Contributing
 
