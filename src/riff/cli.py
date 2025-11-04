@@ -297,21 +297,22 @@ def _check_and_reindex_if_needed(qdrant_url: str) -> None:
     needs_reindex = manifest.needs_reindex()
     reindex_reason = manifest.get_changes_summary() if needs_reindex else None
 
-    # ALSO validate that Qdrant index points to files that actually exist
-    if not needs_reindex:
-        try:
-            # Try to get indexed file paths from Qdrant
-            searcher = QdrantSearcher(qdrant_url)
-            indexed_paths = searcher.get_all_indexed_file_paths()
+    # ALWAYS validate that Qdrant index points to files that actually exist
+    # (stale entries can exist even if file manifest hasn't changed, e.g.,
+    # if Claude moved sessions around)
+    try:
+        # Try to get indexed file paths from Qdrant
+        searcher = QdrantSearcher(qdrant_url)
+        indexed_paths = searcher.get_all_indexed_file_paths()
 
-            # Validate that all indexed sessions exist
-            if indexed_paths and not manifest.validate_index_integrity(indexed_paths):
-                needs_reindex = True
-                reindex_reason = manifest.get_changes_summary()
-        except Exception as e:
-            # If we can't check Qdrant, that's ok - just skip validation
-            # (Qdrant might be starting up, etc.)
-            pass
+        # Validate that all indexed sessions exist
+        if indexed_paths and not manifest.validate_index_integrity(indexed_paths):
+            needs_reindex = True
+            reindex_reason = manifest.get_changes_summary()
+    except Exception as e:
+        # If we can't check Qdrant, that's ok - just skip validation
+        # (Qdrant might be starting up, etc.)
+        pass
 
     if needs_reindex and reindex_reason:
         console.print(f"\n[cyan]📚 Detecting changes in Claude projects...[/cyan]")
