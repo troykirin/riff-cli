@@ -152,6 +152,11 @@ class LocalManifestAdapter(ManifestAdapter):
         This catches scenarios where Claude Code moved/deleted sessions but
         Qdrant still has the old index entries.
 
+        Memory Substrate Integration:
+        - Logs validation failures to memory:item stream
+        - Phase 3A can track staleness trends over time
+        - Enables root cause analysis of index divergence
+
         Args:
             indexed_sessions: List of session file paths from Qdrant index
 
@@ -171,6 +176,20 @@ class LocalManifestAdapter(ManifestAdapter):
         if missing_count > 0:
             stale_percentage = (missing_count / len(indexed_sessions)) * 100
             self._changes_summary = f"Index stale: {missing_count}/{len(indexed_sessions)} sessions missing ({stale_percentage:.1f}%)"
+
+            # Log validation failure to memory substrate
+            try:
+                from .memory_producer import get_memory_producer
+                memory = get_memory_producer()
+                memory.log_validation_failed(
+                    missing_count=missing_count,
+                    total_indexed=len(indexed_sessions),
+                    stale_percentage=stale_percentage
+                )
+            except Exception:
+                # Graceful degradation: If memory logging fails, validation still works
+                pass
+
             return False
 
         return True
