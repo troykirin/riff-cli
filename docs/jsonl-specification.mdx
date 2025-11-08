@@ -1,0 +1,599 @@
+---
+title: "JSONL Format Specification for riff-dag-tui"
+description: "Complete specification for the JSONL data format used to exchange conversation and memory graphs between riff-cli and riff-dag-tui"
+author: "Claude (Anthropic)"
+date: 2025-11-08
+category: "riff-cli"
+tags: [jsonl, specification, format, data-interchange, dag]
+audience: [💻, 🔧]
+status: Active
+---
+
+# JSONL Format Specification for riff-dag-tui
+
+**Status**: Production Specification (v1.0)
+**Version**: 1.0
+**Created**: 2025-11-08
+**Last Updated**: 2025-11-08
+
+---
+
+## Overview
+
+JSONL (JSON Lines) is the data interchange format between riff-cli and riff-dag-tui. Each line is a valid JSON object representing either a **node** (memory/conversation) or an **edge** (relationship).
+
+**Format**: Newline-delimited JSON
+**Encoding**: UTF-8
+**Line Terminator**: `\n` (Unix style)
+**Compatibility**: riff-dag-tui v1.0+
+
+---
+
+## Quick Example
+
+```jsonl
+{"type": "node", "id": "mem_001", "label": "Authentication", "span": "session_001", "tags": ["auth"], "ts": "2025-11-08T10:00:00Z"}
+{"type": "node", "id": "mem_002", "label": "OAuth2 Flow", "span": "session_001", "tags": ["oauth"], "ts": "2025-11-08T10:15:00Z"}
+{"type": "edge", "from": "mem_001", "to": "mem_002"}
+```
+
+---
+
+## Structure: Node Records
+
+### Format
+
+```json
+{
+  "type": "node",
+  "id": "<unique-identifier>",
+  "label": "<display-text>",
+  "span": "<session-or-group-id>",
+  "tags": ["<tag1>", "<tag2>"],
+  "ts": "<iso-8601-timestamp>"
+}
+```
+
+### Required Fields
+
+| Field | Type | Constraints | Description |
+|-------|------|-----------|-------------|
+| `type` | string | Must be `"node"` | Record type identifier |
+| `id` | string | Non-empty, unique | Unique node identifier |
+| `label` | string | Non-empty, ≤100 chars | Display text in TUI |
+| `span` | string | Non-empty | Session/conversation grouping |
+
+### Optional Fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `tags` | array of strings | `[]` | Categorization tags |
+| `ts` | string (ISO 8601) | Current timestamp | Creation/update time |
+| `metadata` | object | `{}` | Custom application data |
+
+### Field Details
+
+#### `id` (Required)
+- **Type**: String
+- **Constraints**:
+  - Must be unique within the document
+  - Non-empty, non-whitespace
+  - Alphanumeric + underscore recommended
+- **Examples**: `"mem_001"`, `"conv_abc123"`, `"node_1"`
+- **Note**: Used as reference in edge records
+
+#### `label` (Required)
+- **Type**: String
+- **Constraints**:
+  - Non-empty
+  - Maximum 100 characters (longer labels truncated)
+  - UTF-8 encoded
+- **Purpose**: Display text shown in the TUI
+- **Examples**: `"Authentication Implementation"`, `"OAuth2 Token Validation"`
+
+#### `span` (Required)
+- **Type**: String
+- **Constraints**: Non-empty
+- **Purpose**: Groups related nodes (session, conversation, or epoch)
+- **Examples**: `"session_001"`, `"conversation_abc"`, `"2025-11-08"`
+
+#### `tags` (Optional)
+- **Type**: Array of strings
+- **Default**: `[]` (empty array)
+- **Constraints**: Each tag should be non-empty
+- **Purpose**: Categorization and filtering
+- **Examples**: `["security", "implementation", "review"]`
+
+#### `ts` (Optional)
+- **Type**: String (ISO 8601 format)
+- **Format**: `YYYY-MM-DDTHH:MM:SSZ` or with timezone
+- **Default**: Current time (generated if omitted)
+- **Examples**: `"2025-11-08T10:30:45Z"`, `"2025-11-08T10:30:45-07:00"`
+
+#### `metadata` (Optional)
+- **Type**: Object (arbitrary key-value pairs)
+- **Default**: `{}` (empty object)
+- **Purpose**: Application-specific data
+- **Examples**: `{"source": "qdrant", "similarity": 0.95}`
+
+### Node Record Examples
+
+#### Minimal Valid Node
+```json
+{"type": "node", "id": "1", "label": "Test", "span": "session_1"}
+```
+
+#### Complete Node with All Fields
+```json
+{
+  "type": "node",
+  "id": "mem_001",
+  "label": "Authentication Implementation Pattern",
+  "span": "session_001",
+  "tags": ["security", "architecture", "implementation"],
+  "ts": "2025-11-08T10:30:45Z",
+  "metadata": {
+    "source": "qdrant",
+    "similarity_score": 0.95,
+    "conversation_id": "conv_abc123",
+    "turn_number": 42
+  }
+}
+```
+
+#### Node with Unicode Characters
+```json
+{
+  "type": "node",
+  "id": "mem_intl",
+  "label": "国际化支持 | Support for Internationalization",
+  "span": "session_global",
+  "tags": ["i18n", "中文", "english"],
+  "ts": "2025-11-08T12:00:00Z"
+}
+```
+
+---
+
+## Structure: Edge Records
+
+### Format
+
+```json
+{
+  "type": "edge",
+  "from": "<source-node-id>",
+  "to": "<target-node-id>"
+}
+```
+
+### Required Fields
+
+| Field | Type | Constraints | Description |
+|-------|------|-----------|-------------|
+| `type` | string | Must be `"edge"` | Record type identifier |
+| `from` | string | Must exist in document | Source node ID |
+| `to` | string | Must exist in document | Target node ID |
+
+### Optional Fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `weight` | number | 1.0 | Edge weight (0-1) |
+| `label` | string | null | Edge label for TUI display |
+| `relationship` | string | null | Relationship type |
+
+### Field Details
+
+#### `from` (Required)
+- **Type**: String
+- **Constraint**: Must match `id` of an existing node
+- **Purpose**: Source node identifier
+- **Validation**: Checked against all node IDs in document
+
+#### `to` (Required)
+- **Type**: String
+- **Constraint**: Must match `id` of an existing node
+- **Purpose**: Target node identifier
+- **Validation**: Checked against all node IDs in document
+
+#### `weight` (Optional)
+- **Type**: Number (float)
+- **Range**: 0.0 to 1.0 (recommended)
+- **Default**: 1.0
+- **Purpose**: Edge strength/importance
+- **Examples**: `0.5` (weak), `0.95` (strong)
+
+#### `label` (Optional)
+- **Type**: String
+- **Purpose**: Display text for the edge
+- **Examples**: `"depends_on"`, `"related_to"`, `"parent"`
+
+#### `relationship` (Optional)
+- **Type**: String
+- **Purpose**: Semantic relationship type
+- **Examples**: `"semantic_similarity"`, `"causality"`, `"reference"`
+
+### Edge Record Examples
+
+#### Minimal Valid Edge
+```json
+{"type": "edge", "from": "mem_001", "to": "mem_002"}
+```
+
+#### Complete Edge with All Fields
+```json
+{
+  "type": "edge",
+  "from": "mem_001",
+  "to": "mem_002",
+  "weight": 0.87,
+  "label": "implements",
+  "relationship": "semantic_dependency"
+}
+```
+
+#### Multiple Edges from Same Node
+```json
+{"type": "edge", "from": "mem_001", "to": "mem_002"}
+{"type": "edge", "from": "mem_001", "to": "mem_003"}
+{"type": "edge", "from": "mem_001", "to": "mem_004"}
+```
+
+---
+
+## Complete Document Structure
+
+### Document Format
+
+A valid JSONL document contains:
+1. **Zero or more node records**
+2. **Zero or more edge records**
+3. **No specific ordering required** (nodes can be interspersed with edges)
+
+### Minimal Valid Document
+
+```jsonl
+{"type": "node", "id": "1", "label": "Solo Node", "span": "s1"}
+```
+
+### Typical Document (3 nodes, 2 edges)
+
+```jsonl
+{"type": "node", "id": "mem_001", "label": "Authentication", "span": "session_001", "tags": ["auth"], "ts": "2025-11-08T10:00:00Z"}
+{"type": "node", "id": "mem_002", "label": "OAuth2 Integration", "span": "session_001", "tags": ["oauth"], "ts": "2025-11-08T10:15:00Z"}
+{"type": "node", "id": "mem_003", "label": "Token Validation", "span": "session_001", "tags": ["security"], "ts": "2025-11-08T10:30:00Z"}
+{"type": "edge", "from": "mem_001", "to": "mem_002", "relationship": "parent"}
+{"type": "edge", "from": "mem_002", "to": "mem_003", "relationship": "dependency"}
+```
+
+### Large Document (1000 nodes)
+
+```jsonl
+{"type": "node", "id": "node_000", "label": "Entry Point", "span": "session_001", ...}
+{"type": "node", "id": "node_001", "label": "Node 1", "span": "session_001", ...}
+...
+{"type": "node", "id": "node_999", "label": "Node 999", "span": "session_001", ...}
+{"type": "edge", "from": "node_000", "to": "node_001"}
+{"type": "edge", "from": "node_001", "to": "node_002"}
+...
+```
+
+---
+
+## Validation Rules
+
+### Critical Rules (abort if violated)
+
+1. **Each line must be valid JSON**
+   ```json
+   {"type": "node", ...}  ✅ Valid
+   {type: "node", ...}    ❌ Invalid (unquoted key)
+   ```
+
+2. **Node records must have required fields**
+   ```json
+   {"type": "node", "id": "1", "label": "Test", "span": "s1"}  ✅ Valid
+   {"type": "node", "id": "1"}                                   ❌ Missing label, span
+   ```
+
+3. **Edge references must exist**
+   ```json
+   {"type": "node", "id": "mem_001", ...}
+   {"type": "edge", "from": "mem_001", "to": "mem_002"}  ❌ mem_002 not defined
+   ```
+
+4. **IDs must be unique**
+   ```json
+   {"type": "node", "id": "node_1", ...}
+   {"type": "node", "id": "node_1", ...}  ❌ Duplicate ID
+   ```
+
+### Warnings (non-critical)
+
+- Empty nodes array (document with 0 nodes)
+- Orphaned nodes (nodes with no edges)
+- Edges with missing targets (target node not found)
+- Non-standard timestamp formats
+- Very long labels (> 100 chars)
+
+---
+
+## Generation from riff-cli
+
+### Python Generation Pattern
+
+```python
+from riff.visualization import convert_to_dag_format, write_temp_jsonl
+
+# From search results
+results = [
+    {
+        "id": "mem_001",
+        "title": "Authentication",
+        "session_id": "session_001",
+        "tags": ["auth"],
+        "timestamp": "2025-11-08T10:00:00Z",
+        "related_nodes": ["mem_002"]
+    }
+]
+
+# Convert to JSONL
+jsonl_generator = convert_to_dag_format(results)
+
+# Write to file
+jsonl_path = write_temp_jsonl(results)
+print(f"Exported to {jsonl_path}")
+```
+
+### Field Mapping (riff-cli → JSONL)
+
+| riff-cli Field | JSONL Field | Mapping |
+|----------------|-------------|---------|
+| `id` | `id` | Direct |
+| `title` | `label` | Direct (truncated to 100) |
+| `session_id` | `span` | Direct |
+| `tags` | `tags` | Direct |
+| `timestamp` | `ts` | Direct |
+| `related_nodes` | edges | Generate edge records |
+
+---
+
+## Consumption by riff-dag-tui
+
+### Reading Pattern
+
+```rust
+use std::io::{BufRead, BufReader};
+use serde_json::json;
+
+fn load_jsonl(path: &str) -> Result<(Vec<Node>, Vec<Edge>)> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+
+    let mut nodes = Vec::new();
+    let mut edges = Vec::new();
+
+    for line in reader.lines() {
+        let record: serde_json::Value = serde_json::from_str(&line?)?;
+        match record["type"].as_str() {
+            Some("node") => {
+                let node = parse_node(&record)?;
+                nodes.push(node);
+            }
+            Some("edge") => {
+                let edge = parse_edge(&record)?;
+                edges.push(edge);
+            }
+            _ => {} // Skip unknown types
+        }
+    }
+
+    Ok((nodes, edges))
+}
+```
+
+---
+
+## File Organization
+
+### Single File (recommended)
+
+```jsonl
+[All nodes]
+[All edges]
+```
+
+**Pros**: Simple, cacheable, single source of truth
+**Cons**: All data loaded at once
+
+### Streaming (for large datasets)
+
+```jsonl
+[Node 1]
+[Node 2]
+...
+[Node N]
+[Edges referencing above nodes]
+```
+
+**Pros**: Can be streamed, processed incrementally
+**Cons**: Requires two-pass parsing
+
+---
+
+## Size Guidelines
+
+| Dataset Size | Node Count | File Size | TUI Performance |
+|--------------|-----------|-----------|-----------------|
+| Small | 1-100 | < 50 KB | Excellent |
+| Medium | 100-1000 | 50 KB - 5 MB | Good |
+| Large | 1000-10K | 5-50 MB | Fair |
+| Extra Large | 10K+ | 50+ MB | Poor (recommend filtering) |
+
+**Recommendation**: Keep individual files < 10 MB for optimal TUI responsiveness.
+
+---
+
+## Extensibility
+
+### Forward Compatibility
+
+The format is **forward compatible**. Consumers should:
+
+1. **Ignore unknown fields**
+   ```json
+   {"type": "node", "id": "1", "label": "Test", "span": "s1", "future_field": "value"}
+   // ✅ Still valid - ignore future_field
+   ```
+
+2. **Ignore unknown record types**
+   ```json
+   {"type": "unknown_type", "data": "value"}
+   // ✅ Skip, don't fail
+   ```
+
+3. **Gracefully handle missing optional fields**
+   ```json
+   {"type": "node", "id": "1", "label": "Test", "span": "s1"}
+   // ✅ Valid - ts and tags are optional
+   ```
+
+### Custom Extensions
+
+You can add custom fields to nodes:
+
+```json
+{
+  "type": "node",
+  "id": "mem_001",
+  "label": "Test",
+  "span": "session_001",
+  "custom_field_1": "value",
+  "custom_field_2": 42,
+  "custom_object": {"nested": "data"}
+}
+```
+
+**Constraint**: Custom fields must not override standard fields.
+
+---
+
+## Error Handling
+
+### Invalid JSON Line
+
+```jsonl
+{"type": "node", ...}  ✅ Valid
+invalid json           ❌ Error: Skip or fail
+{"type": "node", ...}  ✅ Valid
+```
+
+**Handler**: Validation should report line number and reason.
+
+### Missing Node Reference
+
+```jsonl
+{"type": "edge", "from": "mem_001", "to": "mem_999"}
+// ❌ mem_999 not defined - validation error
+```
+
+**Handler**: Report missing node ID, suggest deletion of orphaned edge.
+
+---
+
+## Performance Considerations
+
+### Parsing
+
+- **Line-based parsing**: O(1) per line
+- **Validation**: O(n) for node count
+- **Total**: Linear with file size
+
+### Memory
+
+- **Nodes**: ~500 bytes per node (typical)
+- **Edges**: ~100 bytes per edge (typical)
+- **1000 nodes + 999 edges**: ~600 KB in memory
+
+### Streaming
+
+For very large files, use streaming parsers:
+
+```python
+import json
+
+def stream_jsonl(path):
+    with open(path) as f:
+        for line in f:
+            if line.strip():
+                yield json.loads(line)
+```
+
+---
+
+## Examples
+
+### Example 1: Linear Chain
+
+```jsonl
+{"type": "node", "id": "a", "label": "Start", "span": "s1"}
+{"type": "node", "id": "b", "label": "Middle", "span": "s1"}
+{"type": "node", "id": "c", "label": "End", "span": "s1"}
+{"type": "edge", "from": "a", "to": "b"}
+{"type": "edge", "from": "b", "to": "c"}
+```
+
+**Graph**: `a → b → c`
+
+### Example 2: Tree Structure
+
+```jsonl
+{"type": "node", "id": "root", "label": "Root", "span": "s1"}
+{"type": "node", "id": "child1", "label": "Child 1", "span": "s1"}
+{"type": "node", "id": "child2", "label": "Child 2", "span": "s1"}
+{"type": "node", "id": "grandchild", "label": "Grandchild", "span": "s1"}
+{"type": "edge", "from": "root", "to": "child1"}
+{"type": "edge", "from": "root", "to": "child2"}
+{"type": "edge", "from": "child1", "to": "grandchild"}
+```
+
+**Graph**:
+```
+    root
+    /  \
+ c1     c2
+  |
+  gc
+```
+
+### Example 3: Complex Network
+
+```jsonl
+{"type": "node", "id": "n1", "label": "Security", "span": "s1", "tags": ["auth"]}
+{"type": "node", "id": "n2", "label": "OAuth2", "span": "s1", "tags": ["oauth"]}
+{"type": "node", "id": "n3", "label": "JWT", "span": "s1", "tags": ["token"]}
+{"type": "node", "id": "n4", "label": "Validation", "span": "s1", "tags": ["security"]}
+{"type": "edge", "from": "n1", "to": "n2"}
+{"type": "edge", "from": "n1", "to": "n3"}
+{"type": "edge", "from": "n2", "to": "n4"}
+{"type": "edge", "from": "n3", "to": "n4"}
+```
+
+---
+
+## Related Documentation
+
+- [Quick Start Guide](/docs/visualization/quickstart) - Getting started
+- [API Reference](/docs/visualization/api-reference) - Programmatic usage
+- [Examples](/docs/visualization/examples) - Real-world scenarios
+
+---
+
+## Changelog
+
+### Version 1.0 (2025-11-08)
+- Initial specification
+- Node and edge record types
+- Validation rules
+- Field constraints and examples

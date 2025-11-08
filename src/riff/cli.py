@@ -14,8 +14,40 @@ from .manifest_adapter import get_manifest_adapter
 from .enhance import IntentEnhancer
 from .graph import ConversationDAG, JSONLLoader
 from .graph.visualizer import ConversationTreeVisualizer
+from .visualization import RiffDagTUIHandler, convert_to_dag_format, write_temp_jsonl
+from .config import get_config
 
 console = Console()
+
+
+def cmd_visualize(args) -> int:
+    """Visualize conversation DAG with interactive riff-dag-tui viewer"""
+    try:
+        jsonl_path = Path(args.input)
+
+        if not jsonl_path.exists():
+            console.print(f"[red]Error: File not found: {jsonl_path}[/red]")
+            return 1
+
+        # Launch visualization
+        handler = RiffDagTUIHandler()
+
+        if not handler.verify_installed():
+            console.print(handler.get_installation_hint())
+            return 1
+
+        console.print(f"[green]✓[/green] Opening DAG viewer...\n")
+        exit_code = handler.launch(jsonl_path)
+
+        if exit_code != 0:
+            console.print(f"\n[yellow]⚠️  riff-dag-tui exited with code {exit_code}[/yellow]")
+            return exit_code
+
+        return 0
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        return 1
 
 
 def cmd_sync_surrealdb(args) -> int:
@@ -29,8 +61,9 @@ def cmd_sync_surrealdb(args) -> int:
         # Parse session ID
         session_id = args.session_id
 
-        # Find JSONL file
-        conversations_dir = Path.home() / ".claude" / "projects"
+        # Find JSONL file - use config for conversation directory
+        config = get_config()
+        conversations_dir = config.paths.get("conversations", Path.home() / ".claude" / "projects")
         jsonl_path = None
 
         # Check if it's a full path
@@ -287,8 +320,18 @@ def _check_and_reindex_if_needed(qdrant_url: str) -> None:
     Also validates that indexed sessions in Qdrant actually exist on disk.
     Uses pluggable manifest adapter - easily swappable for system-level manifest
     when that integration is ready.
+
+    Memory Substrate Integration:
+    - Logs reindex events to memory:item stream
+    - Phase 3A SurrealDB ingestion consumes these events
+    - Enables causation analysis and temporal queries
     """
     import subprocess
+    import time
+    from .memory_producer import get_memory_producer
+
+    # Get memory producer for logging
+    memory = get_memory_producer()
 
     # Use manifest adapter (can be swapped out for system-level one)
     manifest = get_manifest_adapter()
@@ -318,7 +361,19 @@ def _check_and_reindex_if_needed(qdrant_url: str) -> None:
         console.print(f"\n[cyan]📚 Detecting changes in Claude projects...[/cyan]")
         console.print(f"[dim]{reindex_reason} - reindexing[/dim]")
 
+        # Log reindex start to memory substrate
+        manifest_state = manifest._manifest if hasattr(manifest, '_manifest') else {}
+        file_count = manifest_state.get('file_count', 0)
+        current_hash = manifest_state.get('hash', '')
+
+        memory.log_reindex_started(
+            reason=reindex_reason,
+            manifest_hash=current_hash,
+            file_count=file_count
+        )
+
         # Run improved_indexer.py (canonical indexing source)
+        start_time = time.time()
         try:
             indexer_script = Path(__file__).parent.parent.parent / "scripts" / "improved_indexer.py"
             # Use uv run to ensure dependencies are available
@@ -329,13 +384,42 @@ def _check_and_reindex_if_needed(qdrant_url: str) -> None:
                 timeout=300
             )
 
+            duration_seconds = int(time.time() - start_time)
+
             if result.returncode == 0:
                 console.print(f"[green]✓ Reindexing complete[/green]\n")
                 manifest.save_manifest()
+
+                # Log successful reindex completion to memory substrate
+                updated_state = manifest._manifest if hasattr(manifest, '_manifest') else {}
+                new_hash = updated_state.get('hash', '')
+                sessions_indexed = updated_state.get('file_count', file_count)
+
+                memory.log_reindex_completed(
+                    duration_seconds=duration_seconds,
+                    sessions_indexed=sessions_indexed,
+                    manifest_hash=new_hash,
+                    success=True
+                )
             else:
                 console.print(f"[yellow]⚠️  Reindexing had issues: {result.stderr[:100]}[/yellow]\n")
+
+                # Log failed reindex to memory substrate
+                memory.log_reindex_completed(
+                    duration_seconds=duration_seconds,
+                    sessions_indexed=0,
+                    manifest_hash=current_hash,
+                    success=False
+                )
         except Exception as e:
+            duration_seconds = int(time.time() - start_time)
             console.print(f"[yellow]⚠️  Could not reindex: {e}[/yellow]\n")
+
+            # Log exception to memory substrate
+            memory.log_event("reindex_failed", {
+                "error": str(e),
+                "duration_seconds": duration_seconds
+            })
 
 
 def cmd_search(args) -> int:
@@ -451,6 +535,65 @@ def cmd_search(args) -> int:
                     # User pressed 'q', exit loop
                     break
 
+        # Handle --visualize flag: export results and launch DAG viewer
+        if args.visualize and results:
+            try:
+                # Determine output file
+                if args.export:
+                    output_file = Path(args.export)
+                else:
+                    # Use temp file in XDG cache directory from config
+                    import tempfile
+                    config = get_config()
+                    cache_dir = config.paths.get("cache", Path.home() / ".cache" / "nabi" / "riff")
+                    cache_dir.mkdir(parents=True, exist_ok=True)
+                    output_file = Path(tempfile.mktemp(
+                        dir=cache_dir,
+                        prefix="search_",
+                        suffix=".jsonl"
+                    ))
+
+                # Convert results to DAG format and write
+                console.print(f"\n[cyan]Exporting {len(results)} results to JSONL...[/cyan]")
+
+                # Convert SearchResult objects to dicts for formatting
+                result_dicts = [
+                    {
+                        'id': r.session_id,
+                        'session_id': r.session_id,
+                        'title': r.content_preview[:80] if r.content_preview else "Untitled",
+                        'timestamp': r.file_path.split('/')[-1].split('.')[0] if r.file_path else "",
+                        'tags': ['search-result'],
+                        'score': r.score,
+                    }
+                    for r in results
+                ]
+
+                jsonl_path = write_temp_jsonl(result_dicts, prefix="search")
+                console.print(f"[green]✓[/green] Exported to [cyan]{jsonl_path}[/cyan]")
+
+                # Launch visualizer
+                console.print(f"\n[cyan]Launching interactive DAG viewer...[/cyan]\n")
+                handler = RiffDagTUIHandler()
+
+                if not handler.verify_installed():
+                    console.print(handler.get_installation_hint())
+                    return 1
+
+                exit_code = handler.launch(jsonl_path)
+
+                # Clean up temp file if it was auto-generated (not --export)
+                if not args.export and jsonl_path.exists():
+                    jsonl_path.unlink(missing_ok=True)
+
+                if exit_code != 0:
+                    console.print(f"\n[yellow]⚠️  riff-dag-tui exited with code {exit_code}[/yellow]")
+                    return exit_code
+
+            except Exception as e:
+                console.print(f"[red]Error during visualization: {e}[/red]")
+                return 1
+
         return 0
 
     except ImportError as e:
@@ -488,8 +631,9 @@ def cmd_graph(args) -> int:
             session_id = session_path.stem
             conversations_dir = session_path.parent
         else:
-            # It's a UUID - look in default location
-            conversations_dir = Path.home() / ".claude" / "projects"
+            # It's a UUID - look in default location from config
+            config = get_config()
+            conversations_dir = config.paths.get("conversations", Path.home() / ".claude" / "projects")
 
             # Find the session file in any subdirectory
             found_path = None
@@ -632,6 +776,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="Launch interactive TUI navigator (default: True)")
     p_search.add_argument("--no-interactive", dest="interactive", action="store_false",
                         help="Show results only without TUI navigation")
+    p_search.add_argument("--visualize", action="store_true",
+                        help="Export results to JSONL and open interactive DAG viewer")
+    p_search.add_argument("--export", metavar="FILE",
+                        help="Export results to JSONL file (used with --visualize)")
     p_search.set_defaults(func=cmd_search)
 
     # Browse command
@@ -642,6 +790,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_browse.add_argument("query", nargs="?", default="", help="Optional search query to start with")
     p_browse.add_argument("--limit", type=int, default=20, help="Results to load")
     p_browse.set_defaults(func=cmd_browse)
+
+    # Visualize command - explore DAG with riff-dag-tui
+    p_visualize = subparsers.add_parser(
+        "visualize",
+        help="Explore conversation DAG interactively"
+    )
+    p_visualize.add_argument("input", help="JSONL file to visualize")
+    p_visualize.set_defaults(func=cmd_visualize)
 
     # ===== CLASSIC COMMANDS (PRESERVED) =====
 
