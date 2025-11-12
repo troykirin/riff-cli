@@ -336,6 +336,54 @@ class RiffConfig:
             venv_config.get("location", "~/.nabi/venvs/riff")
         ).expanduser()
 
+    @property
+    def surrealdb_endpoint(self) -> str:
+        """Get SurrealDB endpoint from config"""
+        return self._config.get("surrealdb", {}).get(
+            "endpoint",
+            "http://localhost:8284"  # Federation default
+        )
+
+    @property
+    def surrealdb_namespace(self) -> str:
+        """Get SurrealDB namespace from config"""
+        return self._config.get("surrealdb", {}).get(
+            "namespace",
+            "memory"  # Federation memory namespace
+        )
+
+    @property
+    def surrealdb_database(self) -> str:
+        """Get SurrealDB database from config"""
+        return self._config.get("surrealdb", {}).get(
+            "database",
+            "riff"
+        )
+
+    @property
+    def surrealdb_username(self) -> str:
+        """Get SurrealDB username from config"""
+        return self._config.get("surrealdb", {}).get(
+            "username",
+            "root"
+        )
+
+    @property
+    def surrealdb_password(self) -> str:
+        """Get SurrealDB password from config"""
+        return self._config.get("surrealdb", {}).get(
+            "password",
+            "federation-root-pass"
+        )
+
+    @property
+    def surrealdb_enabled(self) -> bool:
+        """Check if SurrealDB integration is enabled"""
+        return self._config.get("features", {}).get(
+            "surrealdb_enabled",
+            False
+        )
+
     def get(self, key: str, default: Any = None) -> Any:
         """Get arbitrary config value"""
         keys = key.split(".")
