@@ -3,7 +3,7 @@ class RiffCli < Formula
   homepage "https://github.com/NabiaTech/riff-cli"
   url "https://github.com/NabiaTech/riff-cli/releases/download/v2.0.0/riff-macos-latest-3.11.tar.gz"
   sha256 "CALCULATE_AND_INSERT_SHA256_HERE"
-  license "MIT"
+  license "Apache-2.0"
 
   depends_on "python@3.11"
 

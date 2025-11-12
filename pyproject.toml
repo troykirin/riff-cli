@@ -3,6 +3,7 @@ name = "riff"
 version = "2.0.0"
 description = "Search Claude conversations with content preview + repair JSONL sessions"
 readme = "README.md"
+license = { text = "Apache-2.0" }
 authors = [
     { name = "troykirin", email = "troy@git.nabia.io" }
 ]
