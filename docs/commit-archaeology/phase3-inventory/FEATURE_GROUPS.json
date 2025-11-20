@@ -1,0 +1,225 @@
+{
+  "search_and_retrieval": {
+    "description": "Semantic search, intent enhancement, and content discovery",
+    "modules": [
+      "search/qdrant.py",
+      "search/preview.py",
+      "enhance/intent.py",
+      "manifest_adapter.py"
+    ],
+    "key_features": [
+      "Vector semantic search using Qdrant",
+      "Sentence transformer embeddings",
+      "Intent detection (question, search, debug, optimization)",
+      "Query enhancement with keyword expansion",
+      "SHA256 manifest validation for index integrity",
+      "Content preview extraction and highlighting"
+    ],
+    "status": "mature"
+  },
+  
+  "graph_analysis_and_repair": {
+    "description": "DAG construction, thread detection, orphan identification, and repair operations",
+    "modules": [
+      "graph/models.py",
+      "graph/loaders.py",
+      "graph/dag.py",
+      "graph/analysis.py",
+      "graph/repair.py",
+      "graph/repair_manager.py",
+      "graph/persistence.py",
+      "graph/persistence_provider.py",
+      "graph/persistence_providers.py"
+    ],
+    "key_features": [
+      "Conversation DAG from JSONL messages",
+      "Thread detection (main, side discussions, orphaned)",
+      "Corruption scoring using heuristics",
+      "Semantic analysis without ML models",
+      "Orphan message detection and repair suggestions",
+      "Similarity scoring (keyword, temporal, context)",
+      "JSONL repair writing with atomic updates",
+      "Undo/redo capabilities with backup management",
+      "Abstract storage providers for extensibility"
+    ],
+    "status": "mature"
+  },
+  
+  "deduplication": {
+    "description": "Detection and removal of duplicate tool_result blocks with graceful error handling",
+    "modules": [
+      "classic/duplicate_handler.py",
+      "classic/commands/fix_with_deduplication.py",
+      "classic/commands/scan_with_duplicates.py"
+    ],
+    "key_features": [
+      "Production-grade duplicate detection",
+      "Malformation and corruption handling",
+      "Partial corruption support (valid/invalid block separation)",
+      "OOM protection with duplicate count limits",
+      "Detailed error categorization and logging",
+      "Recovery suggestions based on failure patterns",
+      "Graceful degradation for robustness"
+    ],
+    "status": "new"
+  },
+  
+  "data_persistence": {
+    "description": "SurrealDB event sourcing, session storage, and immutable event logging",
+    "modules": [
+      "surrealdb/storage.py",
+      "surrealdb/schema_utils.py",
+      "surrealdb/repair_provider.py",
+      "surrealdb/repair_events_utils.py",
+      "memory_producer.py",
+      "backup.py"
+    ],
+    "key_features": [
+      "Immutable event sourcing for repairs",
+      "Session materialization from event replay",
+      "HTTP API integration (no WebSocket overhead)",
+      "SurrealDB schema definition and validation",
+      "Repair event logging with full audit trails",
+      "Point-in-time session reconstruction",
+      "Memory substrate integration (Phase 3A)",
+      "XDG-compliant backup storage",
+      "Hot-reloadable backup metadata"
+    ],
+    "status": "new"
+  },
+  
+  "ui_and_visualization": {
+    "description": "Interactive TUI navigation, ASCII visualization, and DAG viewer integration",
+    "modules": [
+      "visualization/handler.py",
+      "visualization/formatter.py",
+      "tui/interface.py",
+      "tui/graph_navigator.py",
+      "tui/prompt_toolkit_impl.py",
+      "graph/visualizer.py",
+      "graph/tui.py"
+    ],
+    "key_features": [
+      "Vim-style navigation (j/k/g/G/Enter)",
+      "ASCII tree visualization",
+      "Time-based filtering (1/3/7/30 days)",
+      "riff-dag-tui subprocess lifecycle management",
+      "DAG format conversion and JSONL serialization",
+      "Interactive session viewing",
+      "Binary discovery in standard locations",
+      "Abstract TUI interface for modular implementations",
+      "Optional prompt_toolkit backend"
+    ],
+    "status": "mature"
+  },
+  
+  "infrastructure_and_configuration": {
+    "description": "Configuration management, memory coordination, and system integration",
+    "modules": [
+      "config.py",
+      "memory_producer.py",
+      "manifest_adapter.py",
+      "backup.py"
+    ],
+    "key_features": [
+      "XDG Base Directory Specification compliance",
+      "TOML-based configuration with educational comments",
+      "Path expansion and environment variables",
+      "Memory item production for federation",
+      "Event/span/state/metric logging",
+      "Reindex lifecycle tracking",
+      "Validation failure reporting",
+      "Search telemetry logging"
+    ],
+    "status": "mature"
+  },
+  
+  "classic_commands": {
+    "description": "Legacy command support for backward compatibility",
+    "modules": [
+      "classic/commands/scan.py",
+      "classic/commands/fix.py",
+      "classic/commands/tui.py",
+      "classic/commands/graph.py",
+      "classic/commands/fix_with_deduplication.py",
+      "classic/commands/scan_with_duplicates.py",
+      "classic/utils.py"
+    ],
+    "key_features": [
+      "Non-destructive session analysis (scan)",
+      "JSONL repair with parent reference fixing",
+      "Interactive TUI navigator",
+      "Graph visualization generation",
+      "Deduplication integration",
+      "Shared utility functions"
+    ],
+    "status": "maintained"
+  },
+  
+  "cli_and_dispatching": {
+    "description": "Main CLI entry point and command orchestration",
+    "modules": [
+      "cli.py"
+    ],
+    "key_features": [
+      "Unified command dispatcher",
+      "Subcommand routing (scan, fix, tui, search, etc.)",
+      "Argument parsing with rich output",
+      "Integration of all major subsystems",
+      "Search with intent enhancement",
+      "SurrealDB sync capability",
+      "Interactive repair workflow",
+      "Error handling and user guidance"
+    ],
+    "status": "mature"
+  },
+  
+  "testing_and_validation": {
+    "description": "Comprehensive test suites across all major components",
+    "coverage": {
+      "graph": "DAG construction, repair operations, thread detection",
+      "surrealdb": "Event sourcing, materialization, sync workflows",
+      "search": "Semantic search, intent detection",
+      "visualization": "Format conversion, TUI handler",
+      "deduplication": "Duplicate detection, validation, error handling",
+      "integration": "End-to-end workflows"
+    },
+    "test_files": 35,
+    "status": "comprehensive"
+  },
+  
+  "dependency_graph": {
+    "core": [
+      "graph/models.py"
+    ],
+    "io_layer": [
+      "graph/loaders.py",
+      "graph/persistence.py"
+    ],
+    "analysis_layer": [
+      "graph/dag.py",
+      "graph/analysis.py",
+      "graph/repair.py"
+    ],
+    "search_layer": [
+      "search/qdrant.py",
+      "enhance/intent.py"
+    ],
+    "persistence_layer": [
+      "surrealdb/storage.py",
+      "surrealdb/schema_utils.py"
+    ],
+    "ui_layer": [
+      "visualization/handler.py",
+      "tui/graph_navigator.py"
+    ],
+    "infrastructure": [
+      "config.py",
+      "manifest_adapter.py",
+      "memory_producer.py"
+    ],
+    "dispatcher": [
+      "cli.py"
+    ]
+  }
+}
