@@ -44,6 +44,17 @@ for script in riff.nu riff-enhanced.nu riff-simple.nu; do
     fi
 done
 
+# Install shared Nushell modules
+echo "📚 Installing shared Nushell modules..."
+LIB_DIR="$INSTALL_DIR/lib"
+mkdir -p "$LIB_DIR"
+if [[ -f "$SRC_DIR/lib/riff-core.nu" ]]; then
+    cp "$SRC_DIR/lib/riff-core.nu" "$LIB_DIR/"
+    echo "   ✅ riff-core.nu installed to $LIB_DIR"
+else
+    echo "   ⚠️  Warning: riff-core.nu not found, shared module not installed"
+fi
+
 # Set up shell aliases
 echo "🔗 Setting up shell integration..."
 

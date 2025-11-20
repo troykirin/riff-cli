@@ -1,0 +1,42 @@
+[project]
+name = "riff"
+version = "2.0.0"
+description = "Search Claude conversations with content preview + repair JSONL sessions"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "troykirin", email = "troy@git.nabia.io" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "rich>=13.0.0",
+    "prompt-toolkit>=3.0.0",
+    "rapidfuzz>=3.0.0",
+    "toml>=0.10.2",
+    "surrealdb>=1.0.6",
+]
+
+[project.optional-dependencies]
+search = [
+    "qdrant-client>=1.7.0",
+    "sentence-transformers>=2.2.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+riff = "riff.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "mypy>=1.0.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"

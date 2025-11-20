@@ -1,0 +1,524 @@
+# Claude Data Schema - Language Agnostic Framework
+# Version: 1.0.0
+# Description: Universal schema definition for Claude conversation data across all formats
+
+metadata:
+  version: "1.0.0"
+  description: "Claude conversation data schema for multi-language support"
+  formats_supported:
+    - claude_export_json  # Official Claude export format
+    - claude_projects_jsonl  # Claude Code project format
+    - claude_archive_jsonl  # Legacy JSONL format
+
+# Data Locations Configuration
+data_locations:
+  search_paths:
+    - path: "${HOME}/nabia/search-archives"
+      format: claude_export_json
+      priority: 1
+      description: "Primary search archive location"
+    
+    - path: "${HOME}/.claude/projects"
+      format: claude_projects_jsonl
+      priority: 2
+      description: "Claude Code project conversations"
+    
+    - path: "${HOME}/Downloads"
+      format: claude_export_json
+      priority: 3
+      description: "Common download location for exports"
+    
+    - path: "${HOME}/Documents"
+      format: claude_export_json
+      priority: 4
+      description: "Alternative document storage"
+
+# Schema Definitions
+schemas:
+  # Claude Export Format (JSON)
+  claude_export_json:
+    file_patterns:
+      - "conversations.json"
+      - "projects.json"
+      - "users.json"
+    
+    conversation:
+      type: object
+      fields:
+        uuid:
+          type: string
+          format: uuid
+          description: "Unique conversation identifier"
+          searchable: true
+          
+        name:
+          type: string
+          description: "Conversation title"
+          searchable: true
+          weight: 1.5
+          
+        created_at:
+          type: timestamp
+          format: iso8601
+          description: "Creation timestamp"
+          
+        updated_at:
+          type: timestamp
+          format: iso8601
+          description: "Last update timestamp"
+          
+        summary:
+          type: string
+          description: "AI-generated summary"
+          searchable: true
+          weight: 1.2
+          
+        account:
+          type: object
+          description: "Account metadata"
+          
+        chat_messages:
+          type: array
+          description: "Array of messages"
+          items:
+            $ref: "#/schemas/claude_export_json/message"
+    
+    message:
+      type: object
+      fields:
+        uuid:
+          type: string
+          format: uuid
+          description: "Message identifier"
+          
+        text:
+          type: string
+          description: "Message content"
+          searchable: true
+          weight: 2.0
+          
+        content:
+          type: array
+          description: "Structured content blocks"
+          searchable: true
+          
+        sender:
+          type: string
+          enum: ["human", "assistant"]
+          description: "Message sender type"
+          
+        created_at:
+          type: timestamp
+          format: iso8601
+          
+        attachments:
+          type: array
+          description: "File attachments"
+          
+        files:
+          type: array
+          description: "Associated files"
+    
+    project:
+      type: object
+      fields:
+        uuid:
+          type: string
+          format: uuid
+          searchable: true
+          
+        name:
+          type: string
+          searchable: true
+          weight: 1.5
+          
+        description:
+          type: string
+          searchable: true
+          weight: 1.3
+          
+        created_at:
+          type: timestamp
+          format: iso8601
+          
+        updated_at:
+          type: timestamp
+          format: iso8601
+          
+        is_private:
+          type: boolean
+          
+        is_starter_project:
+          type: boolean
+          
+        prompt_template:
+          type: string
+          searchable: true
+          
+        creator:
+          type: string
+          
+        docs:
+          type: array
+          items:
+            $ref: "#/schemas/claude_export_json/document"
+    
+    document:
+      type: object
+      fields:
+        uuid:
+          type: string
+          format: uuid
+          
+        filename:
+          type: string
+          searchable: true
+          
+        content:
+          type: string
+          searchable: true
+          weight: 1.8
+          
+        created_at:
+          type: timestamp
+          format: iso8601
+    
+    user:
+      type: object
+      fields:
+        uuid:
+          type: string
+          format: uuid
+          
+        full_name:
+          type: string
+          searchable: true
+          
+        email_address:
+          type: string
+          searchable: true
+
+  # Claude Projects JSONL Format
+  claude_projects_jsonl:
+    file_patterns:
+      - "*.jsonl"
+    
+    entry:
+      type: object
+      fields:
+        uuid:
+          type: string
+          format: uuid
+          searchable: true
+          
+        sessionId:
+          type: string
+          format: uuid
+          searchable: true
+          index: true
+          
+        parentUuid:
+          type: string
+          format: uuid
+          description: "Parent message UUID for threading"
+          
+        type:
+          type: string
+          enum: ["human", "assistant", "system", "error"]
+          description: "Message type"
+          
+        message:
+          type: string
+          searchable: true
+          weight: 2.0
+          description: "Message content"
+          
+        timestamp:
+          type: timestamp
+          format: unix_ms
+          description: "Unix timestamp in milliseconds"
+          
+        cwd:
+          type: string
+          description: "Current working directory"
+          searchable: true
+          weight: 0.5
+          
+        gitBranch:
+          type: string
+          description: "Git branch if in repository"
+          searchable: true
+          weight: 0.5
+          
+        isSidechain:
+          type: boolean
+          description: "Whether message is in sidechain"
+          
+        userType:
+          type: string
+          enum: ["free", "pro", "team"]
+          
+        version:
+          type: string
+          description: "Schema version"
+
+# Search Configuration
+search:
+  strategies:
+    keyword:
+      description: "Basic keyword matching"
+      fields_weight:
+        message_text: 2.0
+        conversation_name: 1.5
+        project_description: 1.3
+        document_content: 1.8
+    
+    intent:
+      description: "Intent-driven recursive search"
+      enhancement:
+        enabled: true
+        max_depth: 5
+        keyword_expansion: true
+        semantic_matching: true
+    
+    semantic:
+      description: "AI-powered semantic search"
+      requires: ["claude_api", "embeddings"]
+      similarity_threshold: 0.7
+    
+    hybrid:
+      description: "Combined keyword + semantic"
+      weight_keyword: 0.4
+      weight_semantic: 0.6
+
+  routing_rules:
+    - pattern: "conversation|chat|discuss|talk"
+      strategy: "conversation_focused"
+      primary_source: "conversations"
+      boost_fields: ["chat_messages.text", "name"]
+      
+    - pattern: "project|docs?|documentation"
+      strategy: "project_focused"
+      primary_source: "projects"
+      boost_fields: ["docs.content", "description", "name"]
+      
+    - pattern: "code|implementation|technical"
+      strategy: "technical_focused"
+      primary_source: "all"
+      boost_fields: ["docs.content", "chat_messages.text"]
+      
+    - pattern: ".*"
+      strategy: "balanced"
+      primary_source: "all"
+      boost_fields: []
+
+# Index Configuration
+indexing:
+  supported_backends:
+    - name: "memory"
+      description: "In-memory index for small datasets"
+      max_size_mb: 500
+      
+    - name: "sqlite"
+      description: "SQLite FTS5 full-text search"
+      persistent: true
+      
+    - name: "elasticsearch"
+      description: "Elasticsearch for large-scale search"
+      requires_server: true
+      
+  fields_to_index:
+    - path: "conversations.*.name"
+      type: "text"
+      analyzer: "standard"
+      
+    - path: "conversations.*.chat_messages.*.text"
+      type: "text"
+      analyzer: "standard"
+      
+    - path: "projects.*.description"
+      type: "text"
+      analyzer: "standard"
+      
+    - path: "projects.*.docs.*.content"
+      type: "text"
+      analyzer: "standard"
+      
+    - path: "*.uuid"
+      type: "keyword"
+      index: true
+      
+    - path: "*.sessionId"
+      type: "keyword"
+      index: true
+
+# API Specification
+api:
+  operations:
+    search:
+      description: "Search across all Claude data"
+      parameters:
+        query:
+          type: string
+          required: true
+          description: "Search query or intent"
+          
+        strategy:
+          type: string
+          enum: ["keyword", "intent", "semantic", "hybrid"]
+          default: "intent"
+          
+        locations:
+          type: array
+          items:
+            type: string
+          description: "Specific paths to search"
+          
+        format:
+          type: string
+          enum: ["auto", "claude_export_json", "claude_projects_jsonl"]
+          default: "auto"
+          
+        limit:
+          type: integer
+          default: 100
+          max: 1000
+          
+        offset:
+          type: integer
+          default: 0
+          
+      response:
+        type: object
+        fields:
+          results:
+            type: array
+            items:
+              $ref: "#/api/schemas/search_result"
+          total:
+            type: integer
+          query_time_ms:
+            type: integer
+    
+    get_by_uuid:
+      description: "Retrieve specific item by UUID"
+      parameters:
+        uuid:
+          type: string
+          required: true
+        type:
+          type: string
+          enum: ["conversation", "project", "message", "document"]
+          
+    list_locations:
+      description: "List all searchable locations"
+      response:
+        type: array
+        items:
+          type: object
+          fields:
+            path: string
+            format: string
+            available: boolean
+            item_count: integer
+
+  schemas:
+    search_result:
+      type: object
+      fields:
+        uuid:
+          type: string
+          description: "Unique identifier"
+          
+        type:
+          type: string
+          enum: ["conversation", "project", "message", "document", "user"]
+          
+        title:
+          type: string
+          description: "Display title"
+          
+        snippet:
+          type: string
+          description: "Relevant text snippet"
+          
+        score:
+          type: number
+          description: "Relevance score (0-1)"
+          
+        source:
+          type: object
+          fields:
+            path: string
+            format: string
+            line: integer  # For JSONL
+            
+        metadata:
+          type: object
+          description: "Additional metadata"
+          
+        highlights:
+          type: array
+          items:
+            type: object
+            fields:
+              field: string
+              fragments: array
+
+# Language Bindings
+language_bindings:
+  python:
+    package: "claude-search"
+    install: "pip install claude-search"
+    example: |
+      from claude_search import ClaudeSearch
+      
+      search = ClaudeSearch()
+      results = search.query(
+          "nabia federation",
+          strategy="intent",
+          limit=10
+      )
+      
+  typescript:
+    package: "@claude/search"
+    install: "npm install @claude/search"
+    example: |
+      import { ClaudeSearch } from '@claude/search';
+      
+      const search = new ClaudeSearch();
+      const results = await search.query({
+          query: "nabia federation",
+          strategy: "intent",
+          limit: 10
+      });
+      
+  rust:
+    package: "claude-search"
+    install: "cargo add claude-search"
+    example: |
+      use claude_search::ClaudeSearch;
+      
+      let search = ClaudeSearch::new();
+      let results = search.query(
+          "nabia federation",
+          Strategy::Intent,
+          10
+      )?;
+      
+  nushell:
+    module: "claude-search.nu"
+    example: |
+      use claude-search
+      
+      claude-search query "nabia federation" --strategy intent --limit 10
+
+# Migration Guide
+migration:
+  from_jsonl_to_export:
+    description: "Convert JSONL files to Claude export format"
+    script: "scripts/migrate-jsonl-to-export.py"
+    
+  from_export_to_jsonl:
+    description: "Convert Claude export to JSONL for streaming"
+    script: "scripts/migrate-export-to-jsonl.py"

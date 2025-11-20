@@ -1,0 +1,239 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                       RIFF CLI v2.0 - ARCHITECTURE MAP                        ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+SOURCE CODE ORGANIZATION:
+========================
+
+/Users/tryk/nabia/tools/riff-cli/src/riff/
+│
+├─ cli.py (286 lines)
+│  │
+│  ├─ build_parser()
+│  │  └─ 9 Subcommands:
+│  │     ├─ search        (NEW: semantic)   → cmd_search()
+│  │     ├─ browse        (NEW: vim-style)  → cmd_browse()
+│  │     ├─ graph         (NEW: DAG viz)    → cmd_graph()
+│  │     ├─ sync:surreal  (NEW: phase 6B)   → cmd_sync_surrealdb()
+│  │     ├─ scan          (CLASSIC)         → cmd_scan()
+│  │     ├─ fix           (CLASSIC)         → cmd_fix()
+│  │     ├─ tui           (CLASSIC)         → cmd_tui()
+│  │     └─ graph-classic (CLASSIC)         → cmd_graph_classic()
+│  │
+│  └─ main()  [entry point]
+│
+├─ search/
+│  ├─ qdrant.py          ← Vector search backend (384-dim embeddings)
+│  └─ preview.py         ← Content rendering + hooks filtering
+│
+├─ classic/
+│  ├─ commands/scan.py   ← JSONL file analysis
+│  ├─ commands/fix.py    ← JSONL repair (missing tool_result)
+│  ├─ commands/tui.py    ← Interactive file browser
+│  ├─ commands/graph.py  ← Mermaid/DOT graph generation
+│  └─ utils.py           ← Helper functions
+│
+├─ enhance/
+│  └─ intent.py          ← AI query enhancement + intent detection
+│
+├─ graph/
+│  ├─ dag.py             ← Conversation DAG (directed acyclic)
+│  ├─ loaders.py         ← JSONL loading logic
+│  ├─ models.py          ← Data structures (Session, Message, Thread)
+│  ├─ visualizer.py      ← ASCII tree rendering
+│  ├─ persistence.py     ← Generic persistence interface
+│  ├─ repair.py          ← Repair algorithms
+│  └─ repair_manager.py  ← Repair orchestration
+│
+├─ tui/
+│  ├─ interface.py       ← Abstract TUI interface
+│  ├─ prompt_toolkit_impl.py  ← PromptToolkit implementation (MVP)
+│  └─ graph_navigator.py ← Graph navigation logic
+│
+└─ surrealdb/            [PHASE 6B: IMMUTABLE EVENT STORE]
+   ├─ storage.py         ← HTTP API client
+   ├─ schema.sql         ← Database schema (14+ tables)
+   ├─ repair_provider.py ← Event logging
+   ├─ schema_utils.py    ← Schema helpers
+   ├─ repair_events_utils.py  ← Query builders
+   └─ (tests, examples, docs)
+
+
+COMMAND EXECUTION FLOW:
+======================
+
+User Input
+    │
+    ├─ riff search "query"
+    ├─ riff graph SESSION_ID
+    ├─ riff sync:surrealdb SESSION
+    └─ riff [classic-commands]
+    │
+    ▼
+cli.py::main()
+    │
+    ▼
+build_parser() → parse_args()
+    │
+    ▼
+dispatch to cmd_*() based on args.command
+    │
+    ├─ cmd_search()
+    │  │
+    │  ├─ QdrantSearcher.search()
+    │  │  └─ Vector embedding + similarity search
+    │  │
+    │  └─ ContentPreview.display_search_results()
+    │     └─ Render with content snippets
+    │
+    ├─ cmd_graph()
+    │  │
+    │  ├─ JSONLLoader.load_messages()
+    │  │
+    │  ├─ ConversationDAG()
+    │  │  └─ Build graph from messages
+    │  │
+    │  └─ ConversationGraphNavigator.run()  (TUI)
+    │     OR ConversationTreeVisualizer.render_ascii_tree()
+    │
+    ├─ cmd_sync_surrealdb()
+    │  │
+    │  ├─ Load JSONL
+    │  ├─ Detect changes (hash comparison)
+    │  ├─ Connect to SurrealDB (async/ws)
+    │  ├─ Log repair events (immutable)
+    │  └─ Sync messages
+    │
+    └─ [classic commands...]
+
+
+FLAG ANALYSIS (NO CONFLICTS):
+=============================
+
+search:
+  query         - Positional
+  --limit       - int (default: 10)
+  --min-score   - float (default: 0.3)
+  --uuid        - boolean
+  --ai          - boolean
+  --days        - int
+  --since       - str (ISO 8601)
+  --until       - str (ISO 8601)
+
+graph:
+  session_id        - Positional
+  --interactive     - boolean (default: True)
+  --no-interactive  - boolean
+  --surrealdb-url   - str
+
+graph-classic:
+  path          - Positional
+  --format      - enum [dot, mermaid]  ← NO SHORT -f OPTION
+  --out         - str
+
+scan:
+  target        - Positional (optional, default: .)
+  --glob        - str (default: **/*.jsonl)
+  --show        - boolean
+
+fix:
+  path          - Positional
+  --in-place    - boolean
+
+tui:
+  target        - Positional (optional, default: .)
+  --glob        - str (default: **/*.jsonl)
+  --fzf         - boolean
+
+sync:surrealdb:
+  session_id        - Positional
+  --force           - boolean
+  --dry-run         - boolean
+  --operator        - str (default: cli)
+  --surrealdb-url   - str
+
+browse:
+  query         - Positional (optional)
+  --limit       - int (default: 20)
+
+GLOBAL:
+  --qdrant-url  - str (default: http://localhost:6333)
+
+
+KEY DESIGN DECISIONS:
+====================
+
+1. THREE-LAYER ARCHITECTURE:
+   CLI Layer (cli.py) → Business Logic → Integration (SurrealDB/JSONL)
+
+2. MODULAR TUI:
+   Abstract interface → PromptToolkit (MVP) → Future swappable implementations
+
+3. SEARCH BACKEND:
+   Pluggable design: Qdrant (current) + extensible for other backends
+
+4. IMMUTABLE EVENT STORE:
+   SurrealDB for Phase 6B: Append-only repair events, never update history
+
+5. TIME FILTERING:
+   --days N, --since DATE, --until DATE for temporal queries
+
+
+INTEGRATION WITH NABI:
+======================
+
+STATUS: Not yet wired in nabi-python script
+
+PLAN:
+  1. nabi exec riff → route via nabi-python
+  2. nabi-python detects "riff" commander
+  3. Calls: /Users/tryk/nabia/tools/riff-cli/src/riff/cli.py
+  4. Full riff functionality available via nabi CLI
+
+CURRENT STATUS:
+  Direct usage:  ✓ riff search, riff graph, etc. work
+  Via nabi:      ⊗ Not yet routed (implementation pending)
+
+
+PROJECT STATUS:
+===============
+
+Version:     2.0.0
+Language:    Python 3.13+
+Framework:   argparse (standard library)
+Package Mgr: uv
+
+Week 1:  ✅ Complete
+  - Clean architecture
+  - Docker + Qdrant config
+  - Search implementation
+  - Documentation
+
+Week 2:  🚧 In Progress
+  - TUI module refinement
+  - Interactive navigator
+  - Integration testing
+
+Week 3:  📅 Planned
+  - Default TUI integration
+  - Performance optimization
+
+Week 4:  📅 Planned
+  - Production polish
+  - Deployment
+
+
+KEY FILES:
+==========
+
+/Users/tryk/nabia/tools/riff-cli/
+├─ src/riff/cli.py                    ← START HERE (main entry, all commands)
+├─ README.md                           ← Quick start guide
+├─ pyproject.toml                      ← Dependencies (uv config)
+├─ Taskfile.yml                        ← Task automation
+└─ docs/
+   ├─ ARCHITECTURE.md                  ← System design
+   ├─ usage.md                         ← Command reference
+   ├─ PHASE_6B_*.md                    ← Persistence details
+   └─ (30+ other implementation docs)
+

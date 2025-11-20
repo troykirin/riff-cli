@@ -1,0 +1,607 @@
+---
+title: "riff-cli Visualization - Examples"
+description: "Real-world usage scenarios and examples for the riff-cli visualization module"
+author: "Claude (Anthropic)"
+date: 2025-11-08
+category: "riff-cli"
+tags: [examples, visualization, tutorials, workflows]
+audience: [💻, 🔧]
+status: Active
+---
+
+# riff-cli Visualization - Examples
+
+**Status**: Production Examples (v1.0)
+**Created**: 2025-11-08
+**Last Updated**: 2025-11-08
+
+---
+
+## Overview
+
+This document provides real-world examples of using the riff-cli visualization module in practical scenarios.
+
+---
+
+## Example 1: Quick Search Visualization
+
+### Scenario
+You want to search for authentication-related conversations and immediately see the results in an interactive graph.
+
+### Command
+```bash
+riff search "how should I implement authentication" --visualize
+```
+
+### What Happens
+1. **Search**: Performs semantic search across conversation history
+2. **Export**: Results automatically exported to `~/.cache/riff/riff-search_*.jsonl`
+3. **Visualize**: Opens interactive DAG viewer showing all matching memories
+4. **Cleanup**: Temp file automatically deleted when you quit the visualizer
+
+### Output
+```
+✓ Exported 42 results to /Users/tryk/.cache/riff/riff-search_20251108_100000.jsonl
+
+[Interactive TUI opens with 42 nodes and 41 edges]
+  Use arrow keys to navigate
+  Press 'q' to quit
+  Press '?' for help
+```
+
+---
+
+## Example 2: Export for Later Analysis
+
+### Scenario
+You found search results worth archiving. You want to export them and analyze them later without re-searching.
+
+### Commands
+```bash
+# First search - export to file
+riff search "oauth2 implementation patterns" --export ~/auth-patterns.jsonl
+
+# Later - visualize the archived results
+riff visualize ~/auth-patterns.jsonl
+
+# Much later - reuse the same data
+riff visualize ~/auth-patterns.jsonl
+```
+
+### Why This Works
+- **Reproducible**: Same results, same analysis
+- **Shareable**: Export file is portable
+- **Archivable**: Keep for reference
+- **Fast**: No re-searching needed
+
+### File Contents
+```jsonl
+{"type": "node", "id": "mem_001", "label": "OAuth2 Flow Overview", "span": "session_001", "tags": ["oauth", "auth"], "ts": "2025-11-08T09:30:00Z"}
+{"type": "node", "id": "mem_002", "label": "Token Endpoint Implementation", "span": "session_001", "tags": ["oauth", "token"], "ts": "2025-11-08T09:45:00Z"}
+{"type": "node", "id": "mem_003", "label": "Refresh Token Strategy", "span": "session_001", "tags": ["oauth", "refresh"], "ts": "2025-11-08T10:00:00Z"}
+{"type": "edge", "from": "mem_001", "to": "mem_002"}
+{"type": "edge", "from": "mem_002", "to": "mem_003"}
+```
+
+---
+
+## Example 3: Large Dataset Analysis
+
+### Scenario
+You're researching a broad topic and get 500+ results. You need to navigate this large graph efficiently.
+
+### Commands
+```bash
+# Search - large result set
+riff search "distributed systems patterns" --visualize
+
+# In the visualizer:
+#   ↑/↓       = Scroll through nodes
+#   →/←       = Zoom in/out
+#   SPACE/j/k = Jump between related nodes
+#   TAB       = Toggle node highlighting
+#   /         = Search within graph
+#   q         = Quit
+```
+
+### What You Can Do
+- **Navigate clusters**: See related concepts grouped together
+- **Follow chains**: Jump from node to node via relationships
+- **Zoom in/out**: Switch between overview and detail views
+- **Search locally**: Find specific topics within the graph
+
+### Example Workflow
+```
+1. View full graph (all 500 nodes)
+2. Zoom into "distributed consensus" cluster
+3. Follow relationship chain: Raft → Paxos → Quorum
+4. Examine implementation details in zoomed view
+5. Jump back to overview
+6. Zoom into "data replication" cluster
+7. Exit and refine search based on discoveries
+```
+
+---
+
+## Example 4: Multi-Step Investigation
+
+### Scenario
+You're investigating a complex topic and want to build understanding step-by-step, saving each phase for reference.
+
+### Phase 1: Initial Exploration
+```bash
+# Start broad
+riff search "microservices architecture" --export ~/investigation/phase1-broad.jsonl
+riff visualize ~/investigation/phase1-broad.jsonl
+# [Explore graph...]
+# [Note: 87 results, good overview]
+```
+
+### Phase 2: Narrow Down
+```bash
+# Based on Phase 1 discoveries, search more specifically
+riff search "service discovery patterns" --export ~/investigation/phase2-discovery.jsonl
+riff visualize ~/investigation/phase2-discovery.jsonl
+# [Explore deeper...]
+# [Note: 34 results, clearer patterns]
+```
+
+### Phase 3: Implementation Details
+```bash
+# Even more specific
+riff search "consul implementation details" --export ~/investigation/phase3-consul.jsonl
+riff visualize ~/investigation/phase3-consul.jsonl
+# [Very focused...]
+# [Note: 12 results, very specific]
+```
+
+### Review Findings
+```bash
+# Later, review all phases
+riff visualize ~/investigation/phase1-broad.jsonl    # Overview
+riff visualize ~/investigation/phase2-discovery.jsonl # Mid-level
+riff visualize ~/investigation/phase3-consul.jsonl    # Details
+```
+
+### Benefits
+- ✅ **Traceable**: Can see how understanding evolved
+- ✅ **Comparable**: Can compare different search phases
+- ✅ **Archivable**: All data preserved for later reference
+- ✅ **Shareable**: Can share entire investigation with others
+
+---
+
+## Example 5: Compare Multiple Searches
+
+### Scenario
+You're comparing two different approaches to solve a problem.
+
+### Commands
+```bash
+# Approach 1: Traditional monolith
+riff search "monolithic architecture patterns" --export ~/approaches/monolith.jsonl
+
+# Approach 2: Microservices
+riff search "microservices architecture patterns" --export ~/approaches/microservices.jsonl
+
+# Approach 3: Serverless
+riff search "serverless architecture patterns" --export ~/approaches/serverless.jsonl
+
+# Compare them side-by-side
+riff visualize ~/approaches/monolith.jsonl
+# [Close, then...]
+riff visualize ~/approaches/microservices.jsonl
+# [Close, then...]
+riff visualize ~/approaches/serverless.jsonl
+```
+
+### Analysis Questions
+- How many patterns in each approach?
+- What are the relationships between patterns?
+- Which approach has the most mature patterns?
+- What patterns are common across all approaches?
+
+### Comparing Metrics
+```bash
+# Get rough stats
+wc -l ~/approaches/monolith.jsonl
+# 48 total records (approx 24 nodes)
+
+wc -l ~/approaches/microservices.jsonl
+# 72 total records (approx 36 nodes)
+
+wc -l ~/approaches/serverless.jsonl
+# 54 total records (approx 27 nodes)
+```
+
+---
+
+## Example 6: Validate and Repair JSONL
+
+### Scenario
+You're working with an exported JSONL file and want to ensure it's valid before sharing.
+
+### Validation
+```python
+from pathlib import Path
+from riff.visualization import validate_jsonl_format
+
+# Check if valid
+is_valid, message = validate_jsonl_format(Path("results.jsonl"))
+
+if is_valid:
+    print(f"✓ {message}")
+    # Output: ✓ Valid: 87 nodes, 86 edges
+else:
+    print(f"✗ {message}")
+    # Output: ✗ Invalid JSON: Expecting value at line 42
+```
+
+### If Invalid
+```python
+# Option 1: Check specific line
+with open("results.jsonl") as f:
+    lines = f.readlines()
+    print(f"Line 42: {lines[41]}")
+
+# Option 2: Validate just that section
+for i, line in enumerate(lines, 1):
+    try:
+        json.loads(line)
+    except json.JSONDecodeError as e:
+        print(f"Line {i}: {e}")
+
+# Option 3: Re-export from source
+# Usually better than hand-fixing JSON
+results = search(query)
+jsonl_path = write_temp_jsonl(results)
+validate_jsonl_format(jsonl_path)
+```
+
+---
+
+## Example 7: Programmatic Usage (Python)
+
+### Scenario
+You're integrating visualization into your own Python application.
+
+### Code
+```python
+from pathlib import Path
+from riff.visualization import (
+    RiffDagTUIHandler,
+    write_temp_jsonl,
+    validate_jsonl_format
+)
+from riff.search import search
+from dataclasses import asdict
+
+def visualize_search_results(query: str):
+    """Search and visualize results."""
+
+    # 1. Perform search
+    print(f"Searching for: {query}")
+    results = search(query, limit=100)
+
+    if not results:
+        print("No results found")
+        return 1
+
+    print(f"Found {len(results)} results")
+
+    # 2. Convert to JSON-serializable format
+    results_dict = [asdict(r) for r in results]
+
+    # 3. Export to JSONL
+    jsonl_path = write_temp_jsonl(results_dict)
+    print(f"Exported to: {jsonl_path}")
+
+    # 4. Validate
+    is_valid, message = validate_jsonl_format(jsonl_path)
+    if not is_valid:
+        print(f"Validation failed: {message}")
+        return 1
+
+    print(f"Validated: {message}")
+
+    # 5. Launch visualizer
+    handler = RiffDagTUIHandler()
+
+    if not handler.verify_installed():
+        print(handler.get_installation_hint())
+        return 1
+
+    print("Launching visualizer...")
+    return handler.launch(jsonl_path)
+
+# Usage
+if __name__ == "__main__":
+    exit_code = visualize_search_results("authentication patterns")
+    exit(exit_code)
+```
+
+### Running It
+```bash
+python my_viz_app.py
+# Output:
+# Searching for: authentication patterns
+# Found 87 results
+# Exported to: /Users/tryk/.cache/riff/riff-search_20251108_100000.jsonl
+# Validated: Valid: 87 nodes, 86 edges
+# Launching visualizer...
+# [Interactive TUI opens]
+```
+
+---
+
+## Example 8: Custom Data Visualization
+
+### Scenario
+You have custom data (not from riff-cli search) that you want to visualize as a DAG.
+
+### Code
+```python
+from riff.visualization import write_temp_jsonl, RiffDagTUIHandler
+import json
+from pathlib import Path
+
+# Your custom data
+my_data = [
+    {
+        "id": "task_1",
+        "title": "Design Architecture",
+        "session_id": "project_2025",
+        "tags": ["design", "planning"],
+        "related_nodes": ["task_2", "task_3"]
+    },
+    {
+        "id": "task_2",
+        "title": "Implement Core",
+        "session_id": "project_2025",
+        "tags": ["implementation"],
+        "related_nodes": ["task_4"]
+    },
+    {
+        "id": "task_3",
+        "title": "Design UI",
+        "session_id": "project_2025",
+        "tags": ["design", "ui"],
+        "related_nodes": ["task_4"]
+    },
+    {
+        "id": "task_4",
+        "title": "Integration Testing",
+        "session_id": "project_2025",
+        "tags": ["testing"],
+        "related_nodes": []
+    }
+]
+
+# Export and visualize
+jsonl_path = write_temp_jsonl(my_data)
+print(f"Exported to: {jsonl_path}")
+
+# View results
+with open(jsonl_path) as f:
+    for line in f:
+        print(line.strip())
+
+# Visualize
+handler = RiffDagTUIHandler()
+handler.launch(jsonl_path)
+```
+
+### Output JSONL
+```jsonl
+{"type": "node", "id": "task_1", "label": "Design Architecture", "span": "project_2025", "tags": ["design", "planning"], "ts": "2025-11-08T10:30:45Z"}
+{"type": "node", "id": "task_2", "label": "Implement Core", "span": "project_2025", "tags": ["implementation"], "ts": "2025-11-08T10:30:45Z"}
+{"type": "node", "id": "task_3", "label": "Design UI", "span": "project_2025", "tags": ["design", "ui"], "ts": "2025-11-08T10:30:45Z"}
+{"type": "node", "id": "task_4", "label": "Integration Testing", "span": "project_2025", "tags": ["testing"], "ts": "2025-11-08T10:30:45Z"}
+{"type": "edge", "from": "task_1", "to": "task_2"}
+{"type": "edge", "from": "task_1", "to": "task_3"}
+{"type": "edge", "from": "task_2", "to": "task_4"}
+{"type": "edge", "from": "task_3", "to": "task_4"}
+```
+
+---
+
+## Example 9: CLI Scripting
+
+### Scenario
+You want to automate visualization as part of a larger workflow.
+
+### Bash Script
+```bash
+#!/bin/bash
+# analyze-and-visualize.sh
+
+QUERY="${1:-architecture patterns}"
+OUTPUT_DIR="${HOME}/research/$(date +%Y%m%d_%H%M%S)"
+
+mkdir -p "${OUTPUT_DIR}"
+
+echo "📊 Analyzing: $QUERY"
+echo "📁 Output: $OUTPUT_DIR"
+
+# Search and export
+riff search "$QUERY" --export "${OUTPUT_DIR}/results.jsonl"
+
+# Check if results exist
+if [ ! -f "${OUTPUT_DIR}/results.jsonl" ]; then
+    echo "❌ Search failed or no results"
+    exit 1
+fi
+
+# Count records
+RECORD_COUNT=$(wc -l < "${OUTPUT_DIR}/results.jsonl")
+echo "📈 Found $(( RECORD_COUNT / 2 )) nodes"
+
+# Visualize
+echo "🎨 Opening visualizer..."
+riff visualize "${OUTPUT_DIR}/results.jsonl"
+
+echo "✅ Complete! Results saved to: ${OUTPUT_DIR}"
+```
+
+### Running It
+```bash
+./analyze-and-visualize.sh "oauth2 implementation"
+```
+
+---
+
+## Example 10: Troubleshooting Workflow
+
+### Scenario
+Something goes wrong. How do you diagnose and fix it?
+
+### Checklist
+```bash
+# 1. Verify visualization module is installed
+python3 -c "from riff.visualization import RiffDagTUIHandler; print('✓ Module installed')"
+
+# 2. Check riff-dag-tui binary
+which riff-dag-tui
+# If not found:
+#   cargo install --path ~/nabia/tui/production/riff-dag-tui
+
+# 3. Test with simple query
+riff search "test" --visualize
+
+# 4. Test with file
+riff search "test" --export ~/test.jsonl
+riff visualize ~/test.jsonl
+
+# 5. Validate JSONL directly
+python3 << 'EOF'
+from pathlib import Path
+from riff.visualization import validate_jsonl_format
+is_valid, msg = validate_jsonl_format(Path("~/test.jsonl").expanduser())
+print(f"Valid: {is_valid}, Message: {msg}")
+EOF
+
+# 6. Debug programmatically
+python3 << 'EOF'
+from riff.visualization import RiffDagTUIHandler
+try:
+    handler = RiffDagTUIHandler()
+    print(f"✓ Binary found: {handler.binary_path}")
+except FileNotFoundError as e:
+    print(f"✗ Error: {e}")
+EOF
+```
+
+---
+
+## Example 11: Batch Visualization
+
+### Scenario
+You have multiple saved searches and want to visualize them all.
+
+### Script
+```bash
+#!/bin/bash
+# visualize-batch.sh
+
+SEARCH_DIR="~/research/searches"
+
+for jsonl_file in "${SEARCH_DIR}"/*.jsonl; do
+    echo "Visualizing: $(basename "$jsonl_file")"
+    riff visualize "$jsonl_file"
+    # After user quits the visualizer, continue to next file
+done
+
+echo "Done!"
+```
+
+### More Advanced
+```bash
+#!/bin/bash
+# analyze-all.sh
+
+SEARCH_DIR="~/research/searches"
+ANALYSIS_DIR="~/research/analysis"
+
+mkdir -p "$ANALYSIS_DIR"
+
+for query in "auth" "database" "deployment" "monitoring"; do
+    echo "Searching: $query"
+    riff search "$query" --export "${ANALYSIS_DIR}/${query}.jsonl"
+
+    # Validate
+    VALIDATION=$(riff validate "${ANALYSIS_DIR}/${query}.jsonl" 2>&1)
+    echo "  ${VALIDATION}"
+done
+
+echo "All searches complete. Visualize with:"
+echo "  riff visualize ~/research/analysis/*.jsonl"
+```
+
+---
+
+## Performance Tips
+
+### Tip 1: Search Performance
+```bash
+# Slow - returns thousands of results
+riff search "the" --visualize
+
+# Fast - more specific query
+riff search "event-driven architecture patterns" --visualize
+```
+
+### Tip 2: Large Datasets
+```bash
+# If results are too large (> 1000 nodes)
+# Option 1: Export and filter
+riff search "broad topic" --export ~/all.jsonl
+
+# Filter with jq
+cat ~/all.jsonl | jq 'select(.tags | contains(["specific-tag"]))' > ~/filtered.jsonl
+
+# Visualize filtered
+riff visualize ~/filtered.jsonl
+
+# Option 2: More specific search
+riff search "specific topic" --visualize
+```
+
+### Tip 3: Reuse Exports
+```bash
+# Once exported, reuse many times
+riff search "topic" --export ~/topic.jsonl
+
+# Visualize multiple times
+riff visualize ~/topic.jsonl
+riff visualize ~/topic.jsonl
+riff visualize ~/topic.jsonl
+
+# No re-searching needed!
+```
+
+---
+
+## Common Patterns
+
+### Pattern 1: Research Investigation
+```
+Search → Analyze Graph → Refine Search → Export → Archive
+```
+
+### Pattern 2: Code Review
+```
+Export Patterns → Visualize → Identify Gaps → Search for Gaps → Export
+```
+
+### Pattern 3: Learning Journey
+```
+Broad Search → Zoom In → Details Search → Compare → Archive
+```
+
+---
+
+## See Also
+
+- [Quick Start Guide](/docs/visualization/quickstart) - Getting started
+- [API Reference](/docs/visualization/api-reference) - Full API docs
+- [JSONL Specification](/docs/visualization/jsonl-spec) - Data format details

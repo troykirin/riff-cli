@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+"""Unified riff CLI: search Claude conversations & repair JSONL"""
+
+import sys
+from src.riff.cli import main
+
+if __name__ == "__main__":
+    sys.exit(main())

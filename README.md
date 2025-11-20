@@ -1,115 +1,183 @@
-# Riff CLI
+# Riff CLI v2.0 - Teaching-First NabiOS Onboarding Tool
 
-A comprehensive toolkit for JSONL file analysis offering both fast UUID extraction and rich interactive fuzzy search capabilities.
+**Your gateway to the XDG Base Directory Specification + Unified Claude conversation search + JSONL repair toolkit**
 
-## Features
+Riff is more than a tool—it's your **first step into NabiOS architecture**. Run it on any clean system, and it automatically teaches you why portable software requires the XDG Base Directory Specification. Search through your Claude conversations and **see the actual text snippets** you're looking for—not just file paths. Built with Python 3.13+, powered by Qdrant semantic search, with enterprise-grade architecture.
 
-### Nushell Variants (Fast & Lightweight)
-- **UUID Extraction**: Lightning-fast UUID extraction from Claude conversation logs
-- **Fuzzy Search**: Interactive search using `fzf` for quick UUID selection
-- **Multiple Formats**: Support for interactive, JSON, and UUID-only outputs
-- **Content Search**: Filter entries by search terms within the content
-- **Performance Optimized**: Configurable limits and streaming for large datasets
+> **Status**: ✅ v2.0 Release Ready | XDG Architecture Complete | Single-Binary Ready | Teaching-First Design
+>
+> **New in v2.0**: Automatic XDG configuration + Backup system + Duplicate detection + Educational TOML + Ready for binary distribution
 
-### Python Interactive (Rich & Visual)
-- **Rich Interface**: Syntax-highlighted JSON with smooth scrolling navigation
-- **Advanced Fuzzy Search**: Powered by RapidFuzz with context-aware snippets
-- **Keyboard Navigation**: Vim-style controls and interactive browsing
-- **Full JSON Expansion**: Complete record viewing with proper formatting
-- **Modern Python Stack**: Built with Rich, prompt_toolkit, and uv
+## 🏗️ v2.0 Architectural Innovations
 
-## Quick Start
+### XDG Base Directory Specification (Teaching-First Design)
+- **Auto-Configuration**: Config file automatically created on first run with 200-line educational TOML
+- **Portable Paths**: Separates configuration, data, state, and cache into standard XDG directories
+  - `~/.config/nabi/riff.toml` - Configuration (portable)
+  - `~/.local/share/nabi/riff/` - Application data (backup this)
+  - `~/.local/state/nabi/riff/` - Runtime state (ephemeral)
+  - `~/.cache/nabi/riff/` - Temporary cache (deletable)
+- **Educational Comments**: TOML explains why XDG matters and prepares you for NabiOS
+- **No Pre-Configuration Required**: Works on clean systems immediately
 
-### Installation
+### Safe Backup System
+- **Automatic Backups**: Creates timestamped backups before modifying conversations
+- **Hot-Reload Index**: Backup manifest in state directory updates immediately
+- **Data Safety**: Prevents accidental data loss during repairs
+- **Easy Restore**: Backups are standard JSONL files, restoreable manually
+
+### Duplicate Detection & Removal (NEW)
+- **Session Resume Corruption Fix**: Identifies and removes duplicate tool_result blocks
+- **Safe Deduplication**: Keeps first occurrence, removes duplicates
+- **Rich Output**: Visual tables showing issues and fixes
+
+## ✨ Core Features
+
+### Semantic Search with Content Preview
+- **See What You Search For**: Actual conversation snippets in results (not just paths)
+- **Semantic Search**: Find conversations by meaning, not just keywords
+- **AI Enhancement**: Optional intent-driven query expansion
+- **Direct UUID Lookup**: Quick access by session ID
+- **Rich Preview**: Color-formatted content in terminal
+
+### Original TUI Commands
+- **Scan**: Find issues in JSONL files (now includes duplicate detection)
+- **Fix**: Repair conversations with automatic backup
+- **TUI**: Interactive file browser with vim-style navigation
+- **Graph**: Generate conversation graphs (Mermaid/DOT format)
+
+## 🚀 Quick Start
+
+### 1. Setup (30 seconds)
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd riff-cli
+cd /Users/tryk/nabia/tools/riff-cli
 
-# Install Nushell variants
-./install/install.sh
+# Setup development environment
+task dev:setup
 
-# Install Python interactive (using uv)
-cd python && uv sync
+# Start Qdrant (for search)
+task docker:up
 ```
 
-### Basic Usage
+### 2. Search Your Conversations
 
-**Nushell Variants (Fast UUID extraction):**
 ```bash
-# Interactive mode with fuzzy search
-riff data.jsonl
+# Semantic search with content snippets
+task search -- "memory architecture"
 
-# Extract UUIDs only
-riff-uuid data.jsonl
+# Or use directly
+uv run riff search "federation patterns"
 
-# JSON output format
-riff-json data.jsonl
+# UUID lookup
+uv run riff search --uuid abc-123
 
-# Search within content
-riff data.jsonl --search "error"
+# AI-enhanced search
+uv run riff search --ai "your query"
 ```
 
-**Python Interactive (Rich browsing):**
+### 3. Repair JSONL Files
+
 ```bash
-# Rich interactive fuzzy search
-cd python
-uv run python jsonl_tool.py data.jsonl --query "search phrase"
+# Scan for issues
+task scan -- ~/claude/sessions/
 
-# Navigate with [n]ext, [p]revious, [v]iew full, [q]uit
+# Fix broken JSONL
+task fix -- session.jsonl
+
+# Interactive TUI
+uv run riff tui ~/claude/
 ```
 
-## Requirements
+### All Available Commands
 
-### Nushell Variants
-- [Nushell](https://www.nushell.sh/) - Modern shell with structured data support
-- [fzf](https://github.com/junegunn/fzf) - Fuzzy finder for interactive selection
+```bash
+task --list
+```
 
-### Python Interactive
-- Python 3.8+
-- [uv](https://docs.astral.sh/uv/) (recommended) or pip
+### Federation Integration
 
-## Tool Variants
+```bash
+# Register with Nabi CLI
+task nabi:register
 
-### Nushell Tools
-- **riff**: Main implementation optimized for Claude conversation logs
-- **riff-enhanced**: Enhanced version with progress indicators
-- **riff-simple**: Minimal version for testing and debugging
+# Then use from anywhere
+nabi exec riff search "query"
+```
 
-### Python Tools
-- **riff-interactive**: Rich fuzzy search with visual interface and keyboard navigation
+## 📋 Requirements
 
-## Documentation
+- **Python 3.13+**
+- **uv** - Package manager ([install](https://docs.astral.sh/uv/))
+- **task** - Task automation ([install](https://taskfile.dev/))
+- **Docker** - For Qdrant (optional, but recommended)
 
-- [Usage Guide](docs/usage.md) - Comprehensive usage examples
-- [Development](docs/development.md) - Development setup and contributing
+All Python dependencies are managed via `pyproject.toml`
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 riff-cli/
-├── README.md              # This file
-├── src/                   # Nushell source code
-│   ├── riff.nu           # Main CLI implementation
-│   ├── riff-enhanced.nu  # Enhanced version with progress
-│   └── riff-simple.nu    # Simple test version
-├── python/                # Python interactive tool
-│   ├── jsonl_tool.py     # Rich interactive fuzzy search
-│   ├── pyproject.toml    # uv project configuration
-│   ├── requirements.txt  # pip dependencies
-│   ├── README.md         # Python tool documentation
-│   └── context.md        # Vision and development context
-├── install/               # Installation scripts
-│   ├── install.sh        # Nushell tools installation
-│   ├── zsh-aliases.sh    # Shell integration aliases
-│   └── uninstall.sh      # Clean removal script
-├── docs/                  # Documentation
-│   ├── usage.md          # Comprehensive usage guide
-│   └── development.md    # Development and contributing
-└── tests/                 # Test files and examples
-    └── sample-data/       # Sample JSONL files
+├── src/riff/              # Python package
+│   ├── cli.py            # Entry point
+│   ├── search/           # Qdrant semantic search
+│   ├── enhance/          # AI query enhancement
+│   ├── classic/          # Original commands (scan, fix, tui, graph)
+│   └── tui/              # Interactive TUI (Week 2)
+├── tests/                # Test suite
+├── infrastructure/       # Docker & Qdrant config
+├── docs/                 # Documentation
+│   ├── ARCHITECTURE.md   # System design
+│   └── DEVELOPMENT.md    # Dev guide
+├── Taskfile.yml          # Task automation
+└── pyproject.toml        # uv project config
 ```
+
+**Clean root directory** (enterprise standard):
+- Only essential configs and documentation at root
+- Legacy files moved to `archive/`
+- Infrastructure organized in `infrastructure/`
+
+## 📚 Documentation
+
+### Getting Started
+- **[QUICK_START.md](docs/QUICK_START.md)** - 5-minute setup guide
+- **[XDG_ONBOARDING_GUIDE.md](docs/XDG_ONBOARDING_GUIDE.md)** - Understanding XDG architecture (4,500 words)
+- **[INSTALLATION.md](docs/INSTALLATION.md)** - Installation methods and troubleshooting (Coming v2.1)
+
+### Development & Architecture
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and decisions
+- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Setup and contribution guide
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and release notes
+- **[RELEASE_INSTRUCTIONS.md](RELEASE_INSTRUCTIONS.md)** - Binary release guide
+
+### Reference
+- **Backup System**: Implementation in `src/riff/backup.py`
+- **Configuration System**: XDG-compliant in `src/riff/config.py`
+- **Duplicate Detection**: Detection/removal in `src/riff/classic/commands/scan.py` and `fix.py`
+
+## 🗓️ Release Roadmap
+
+### ✅ v2.0.0 - Released Now
+- ✅ XDG Base Directory Specification implementation
+- ✅ Automatic configuration with educational TOML
+- ✅ Safe backup system with hot-reload index
+- ✅ Duplicate tool_result detection and removal
+- ✅ Production-ready for single-binary distribution
+- ✅ Comprehensive documentation
+
+### 🚀 v2.1.0 (Next - Week 2)
+- Single-binary distribution (PyInstaller)
+- GitHub Actions CI/CD for multi-platform builds
+- Homebrew formula and tap
+- Pre-built binaries on GitHub Releases
+
+### 📅 v2.2.0+ (Future)
+- Windows .exe support with code signing
+- Docker image distribution
+- Conda package
+- Auto-update mechanism
+- Windows terminal optimization
 
 ## License
 

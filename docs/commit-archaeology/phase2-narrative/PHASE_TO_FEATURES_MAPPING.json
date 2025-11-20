@@ -1,0 +1,283 @@
+{
+  "phase_1_visualization": {
+    "date_range": "2025-11-08 to 2025-11-08",
+    "duration_days": 4,
+    "status": "COMPLETE",
+    "accomplishment": "Created subprocess orchestration pattern bridging Python semantic search with Rust interactive DAG viewer. Established clean visualization architecture with 50 passing tests.",
+    "features": [
+      "RiffDagTUIHandler subprocess lifecycle management",
+      "JSONL to riff-dag-tui format conversion",
+      "Multi-location binary discovery (4 fallback paths)",
+      "TTY passthrough for interactive visualization",
+      "XDG-compliant temp file management",
+      "Comprehensive test suite (50 tests, 100% pass rate)",
+      "Professional MDX documentation (1,700+ lines)"
+    ],
+    "code_locations": [
+      "src/riff/visualization/handler.py (136 lines)",
+      "src/riff/visualization/formatter.py (166 lines)",
+      "src/riff/visualization/__init__.py (6 lines)",
+      "tests/unit/test_visualization_handler.py (180 lines)",
+      "tests/unit/test_visualization_formatter.py (330 lines)",
+      "tests/integration/test_visualization_workflow.py (360 lines)"
+    ],
+    "documents": [
+      "PHASE1_DAY1_COMPLETION.md",
+      "PHASE1_DAY3_COMPLETION.md",
+      "PHASE1_DAY4_COMPLETION.md",
+      "PHASE1_PROGRESS_SUMMARY.md",
+      "docs/visualization-module-quickstart.mdx",
+      "docs/jsonl-specification.mdx",
+      "docs/api-reference.mdx",
+      "docs/examples.mdx"
+    ],
+    "dependencies": [
+      "riff-dag-tui binary (Rust component)",
+      "Qdrant for semantic search"
+    ],
+    "leads_to": "Phase 2 (CLI integration with visualization)"
+  },
+
+  "phase_2_cli_integration": {
+    "date_range": "2025-11-08 to 2025-11-08",
+    "duration_days": 1,
+    "status": "COMPLETE",
+    "accomplishment": "Integrated visualization as first-class CLI feature. Users could search conversations and immediately visualize results interactively.",
+    "features": [
+      "visualize subcommand for standalone JSONL visualization",
+      "--visualize flag on search command",
+      "--export flag for explicit JSONL export",
+      "Subprocess handler integration into CLI workflow",
+      "Error handling and user-friendly messages"
+    ],
+    "code_locations": [
+      "src/riff/cli.py (152 lines added)",
+      "Integration of src/riff/visualization module"
+    ],
+    "documents": [
+      "PHASE1_PROGRESS_SUMMARY.md"
+    ],
+    "dependencies": [
+      "Phase 1 (visualization module)",
+      "Qdrant for semantic search"
+    ],
+    "leads_to": "Phase 3 (three-layer routing)"
+  },
+
+  "phase_2_enhanced_manifest": {
+    "date_range": "2025-11-04 to 2025-11-04",
+    "duration_days": 1,
+    "status": "COMPLETE AND DEPLOYED",
+    "accomplishment": "Enabled automatic change detection and reindexing. Architected pluggable manifest system for future system-wide manifest integration without code changes.",
+    "features": [
+      "ManifestAdapter pluggable interface for change detection",
+      "LocalManifestAdapter with SHA256-based file tracking",
+      "Automatic reindex triggering on every search",
+      "Session manifest persistence in ~/.local/state/nabi/riff/",
+      "Drift prevention through pluggable architecture",
+      "Ready for SystemManifestAdapter upgrade"
+    ],
+    "code_locations": [
+      "src/riff/manifest_adapter.py (NEW - 160 lines)",
+      "src/riff/cli.py (modified - simplified _check_and_reindex_if_needed)",
+      "src/riff/cli.py (added manifest checking in cmd_search)"
+    ],
+    "documents": [
+      "COMPLETION_SUMMARY_2025-11-04.md",
+      "MANIFEST_AUTO_REINDEX_GUIDE.md",
+      "MANIFEST_ADAPTER_ARCHITECTURE.md"
+    ],
+    "performance": {
+      "no_changes": "100-300ms",
+      "changes_detected": "30-60s (includes reindexing)"
+    },
+    "dependencies": [
+      "Phase 1 (visualization foundation)",
+      "Qdrant for semantic search"
+    ],
+    "leads_to": "Phase 6C (federation integration with nabi docs manifest)"
+  },
+
+  "phase_2_user_enhancements": {
+    "date_range": "2025-11-04 to 2025-11-04",
+    "duration_days": 1,
+    "status": "COMPLETE AND TESTED",
+    "accomplishment": "Directly incorporated user feedback into product. Four key enhancements addressing specific user pain points and constraints.",
+    "features": [
+      "Preview modal (press 'o' to see full session content)",
+      "Fuzzy search fallback for exact phrase matching",
+      "Proper Claude Code session resumption with path decoding",
+      "Intelligent manifest-based auto-reindexing"
+    ],
+    "code_locations": [
+      "src/riff/tui/prompt_toolkit_impl.py (show_preview_modal, resume_session)",
+      "src/riff/search/qdrant.py (search_fuzzy method)",
+      "src/riff/manifest_adapter.py (pluggable adapters)"
+    ],
+    "documents": [
+      "FINAL_DELIVERY_SUMMARY.md",
+      "ENHANCEMENTS_2025-11-03.md",
+      "TESTING_RESULTS_2025-11-04.md"
+    ],
+    "testing": {
+      "total_tests": 25,
+      "passed": 25,
+      "pass_rate": "100%"
+    },
+    "dependencies": [
+      "User feedback",
+      "Phase 1 (visualization foundation)"
+    ],
+    "leads_to": "Phase 6C (federation integration)"
+  },
+
+  "phase_3_routing": {
+    "date_range": "2025-10-24 to 2025-10-24",
+    "duration_days": 1,
+    "status": "COMPLETE",
+    "accomplishment": "Integrated riff-cli into federated nabi namespace. All 9 riff commands now accessible via 'nabi riff <command>' through clean polyglot routing.",
+    "features": [
+      "Layer 1 (Rust): Riff command variant in nabi-cli router",
+      "Layer 2 (Bash): riff case statement in nabi-python script",
+      "Layer 3 (Python): Leveraged existing riff.cli module",
+      "Unified namespace: 'nabi riff <command>'",
+      "Clean subprocess isolation with 'exec' (no zombie processes)"
+    ],
+    "code_locations": [
+      "nabi-cli/src/main.rs (21 lines added, 1 function)",
+      "nabi-python script (19 lines added, 1 case statement)"
+    ],
+    "documents": [
+      "PHASE3_COMPLETION_REPORT.md"
+    ],
+    "performance": {
+      "cold_start": "~3.4s (Python interpreter dominant)",
+      "routing_overhead": "<20ms (negligible)"
+    },
+    "dependencies": [
+      "Phase 1 (visualization module)",
+      "Phase 2 (CLI integration)",
+      "nabi-cli infrastructure"
+    ],
+    "leads_to": "Phase 6B (immutable event store)"
+  },
+
+  "phase_6a_semantic_dag": {
+    "date_range": "2025-10-01 to 2025-10-20",
+    "duration_days": "~20 (implied)",
+    "status": "COMPLETE",
+    "accomplishment": "Transformed riff-cli from simple JSONL scanner to intelligent semantic repair system. Enables understanding of conversation structure and suggesting meaningful fixes.",
+    "features": [
+      "ConversationDAG class - builds semantic dependency graph",
+      "RepairEngine - detects and suggests repairs for orphaned messages",
+      "repair_manager.py - orchestrates repair workflow",
+      "TUI integration with vim-style keybindings",
+      "Semantic similarity scoring using embeddings"
+    ],
+    "code_locations": [
+      "src/riff/graph/ (ConversationDAG, repair_manager.py)",
+      "src/riff/tui/graph_navigator.py (vim-style TUI)"
+    ],
+    "documents": [
+      "REPAIR_WORKFLOW.md",
+      "SEMANTIC_DAG_DESIGN.md"
+    ],
+    "key_insight": "Repair engine uses semantic similarity (embeddings) to suggest which orphaned message belongs in which conversation thread, not just syntactic heuristics.",
+    "dependencies": [
+      "Phase 1 (visualization foundation)",
+      "Qdrant embeddings for semantic similarity"
+    ],
+    "leads_to": "Phase 6B (pluggable persistence)"
+  },
+
+  "phase_6b_immutable_store": {
+    "date_range": "2025-10-20 to 2025-11-17",
+    "feature_implementation": "2025-10-20",
+    "activation": "2025-11-17",
+    "status": "ACTIVATED (CLI integration pending)",
+    "accomplishment": "Transformed repair system from destructive mutations to immutable event sourcing. Complete audit trail: who, what, when, why, confidence score.",
+    "features": [
+      "PersistenceProvider abstract interface (5 methods)",
+      "JSONLRepairProvider - wraps existing JSONL mutations",
+      "SurrealDBRepairProvider - append-only event logging",
+      "RepairManager accepts pluggable backends",
+      "TUI auto-detection via environment or config",
+      "SurrealDB schema deployed (3 immutable tables)",
+      "Config system integration (riff.toml)"
+    ],
+    "code_locations": [
+      "src/riff/surrealdb/repair_provider.py (258 lines)",
+      "src/riff/graph/persistence_provider.py (95 lines)",
+      "src/riff/graph/persistence_providers.py (136 lines)",
+      "src/riff/tui/graph_navigator.py (modified for config-driven backend)",
+      "tests/test_persistence_provider_integration.py (16 tests)"
+    ],
+    "documents": [
+      "PHASE1_SURREALDB_ACTIVATION_COMPLETE.md",
+      "PHASE2_TUI_INTEGRATION_COMPLETE.md",
+      "docs/PHASE_6B_INTEGRATION_SUMMARY.md",
+      "docs/IMMUTABLE_STORE_ARCHITECTURE.md"
+    ],
+    "event_structure": {
+      "event_id": "UUID",
+      "session_id": "from JSONL",
+      "message_id": "orphaned message",
+      "old_parent_uuid": "previous parent (null for orphans)",
+      "new_parent_uuid": "suggested parent",
+      "operator": "who (tui, user, system)",
+      "reason": "why repair happened",
+      "similarity_score": "0.0-1.0 confidence",
+      "timestamp": "ISO8601",
+      "is_reverted": "for undo events",
+      "revert_reason": "undo documentation"
+    },
+    "configuration": {
+      "config_file": "~/.config/nabi/riff.toml",
+      "surrealdb_endpoint": "http://localhost:8284",
+      "surrealdb_namespace": "memory",
+      "surrealdb_database": "riff",
+      "surrealdb_username": "root",
+      "surrealdb_password": "federation-root-pass",
+      "surrealdb_enabled": "true/false flag"
+    },
+    "status_details": {
+      "backend": "ACTIVATED (flag enabled, schema deployed, config wired)",
+      "tui_integration": "WIRED (graph_navigator uses config-driven backend)",
+      "cli_integration": "PENDING (cmd_fix does NOT call log_repair_event yet)",
+      "testing": "DEFERRED (pytest-asyncio not configured)"
+    },
+    "dependencies": [
+      "Phase 6A (repair engine)",
+      "federation-surrealdb container (port 8284)",
+      "SurrealDB schema deployment"
+    ],
+    "leads_to": "Phase 6C (federation integration and CLI wiring)"
+  },
+
+  "phase_6c_federation": {
+    "date_range": "2025-10-01 to planning",
+    "status": "PLANNED",
+    "accomplishment": "Will integrate repairs into federation event flow. Complete immutable audit trail in federation memory substrate.",
+    "features": [
+      "Wire SurrealDB repairs into cmd_fix workflow",
+      "TUI display of repair history from SurrealDB",
+      "Federation event coordination",
+      "Immutable audit trail integration",
+      "Event replay for disaster recovery"
+    ],
+    "code_locations_will_be": [
+      "docs/PHASE_6C_FEDERATION_INTEGRATION_PLAN.md",
+      "docs/_PHASE_6C_KICKOFF_SUMMARY.md",
+      "src/riff/classic/commands/fix.py (modifications)"
+    ],
+    "dependencies": [
+      "Phase 6B (immutable event store - completed)",
+      "Phase 2 (TUI integration - completed)"
+    ],
+    "next_steps": [
+      "Wire cmd_fix to call log_repair_event()",
+      "Test end-to-end repair workflow",
+      "Integrate federation event coordination"
+    ]
+  }
+}

@@ -21,6 +21,20 @@ for cmd in riff riff-enhanced riff-simple; do
     fi
 done
 
+# Remove shared Nushell modules
+LIB_DIR="$INSTALL_DIR/lib"
+if [[ -d "$LIB_DIR" ]]; then
+    if [[ -f "$LIB_DIR/riff-core.nu" ]]; then
+        rm "$LIB_DIR/riff-core.nu"
+        echo "   ✅ Removed shared module riff-core.nu"
+    fi
+    # Clean up lib directory if empty
+    if [[ -z "$(ls -A "$LIB_DIR")" ]]; then
+        rmdir "$LIB_DIR"
+        echo "   ✅ Removed empty lib directory"
+    fi
+fi
+
 # Remove shell aliases from .zshrc
 echo "🔗 Removing shell integration..."
 

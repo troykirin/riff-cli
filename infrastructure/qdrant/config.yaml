@@ -1,0 +1,22 @@
+service:
+  host: 0.0.0.0
+  http_port: 6333
+  grpc_port: 6334
+
+storage:
+  # Storage directory for collections and snapshots
+  storage_path: /qdrant/storage
+
+  # Performance tuning
+  optimizers:
+    default_segment_number: 2
+    indexing_threshold: 20000
+
+cluster:
+  enabled: false
+
+# Logging configuration
+log_level: INFO
+
+# Telemetry (disable for privacy)
+telemetry_disabled: true

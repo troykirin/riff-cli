@@ -1,0 +1,245 @@
+# Task automation for riff-cli testing
+# Usage: task -t Taskfile.test.yaml <command>
+
+version: '3'
+
+vars:
+  PYTHON: ~/.nabi/venvs/riff-cli/bin/python
+  PYTEST: ~/.nabi/venvs/riff-cli/bin/pytest
+  SRC_DIR: ./src
+  TEST_DIR: ./tests
+  COV_REPORT_DIR: ./htmlcov
+
+env:
+  PYTHONPATH: "{{.SRC_DIR}}"
+  RIFF_TEST_MODE: "1"
+
+tasks:
+  # ============================================================================
+  # QUICK COMMANDS
+  # ============================================================================
+
+  default:
+    desc: "Run all unit tests (fast)"
+    cmds:
+      - task: test:unit
+
+  test:
+    desc: "Run full test suite"
+    cmds:
+      - task: test:all
+
+  # ============================================================================
+  # EXPLORATION & DEBUGGING
+  # ============================================================================
+
+  explore:qdrant:
+    desc: "Explore live Qdrant data structure"
+    cmds:
+      - "{{.PYTHON}} {{.TEST_DIR}}/explore_qdrant.py"
+
+  test:live-search:
+    desc: "Test search against live Qdrant (diagnostic)"
+    cmds:
+      - "{{.PYTHON}} {{.TEST_DIR}}/test_search_live.py"
+
+  # ============================================================================
+  # TEST EXECUTION
+  # ============================================================================
+
+  test:all:
+    desc: "Run complete test suite"
+    cmds:
+      - task: test:unit
+      - task: test:integration
+      - cmd: echo "✓ All tests passed!"
+
+  test:unit:
+    desc: "Run unit tests only (fast, no external deps)"
+    cmds:
+      - "{{.PYTEST}} -m unit {{.TEST_DIR}}/unit -v"
+
+  test:integration:
+    desc: "Run integration tests (with mocked Qdrant)"
+    cmds:
+      - "{{.PYTEST}} -m integration {{.TEST_DIR}}/integration -v"
+
+  test:live:
+    desc: "Run tests against live Qdrant (requires TEST_LIVE_QDRANT=1)"
+    env:
+      TEST_LIVE_QDRANT: "1"
+    cmds:
+      - "{{.PYTEST}} -m live {{.TEST_DIR}} -v"
+
+  test:performance:
+    desc: "Run performance benchmarks"
+    cmds:
+      - "{{.PYTEST}} -m performance {{.TEST_DIR}}/performance --benchmark-autosave"
+
+  test:specific:
+    desc: "Run specific test file or pattern"
+    vars:
+      PATTERN: '{{.CLI_ARGS | default "test_"}}'
+    cmds:
+      - "{{.PYTEST}} -k {{.PATTERN}} -v"
+
+  # ============================================================================
+  # COVERAGE
+  # ============================================================================
+
+  coverage:
+    desc: "Run tests with coverage report"
+    cmds:
+      - "{{.PYTEST}} --cov=riff.search --cov-report=html --cov-report=term"
+      - cmd: echo "Coverage report generated at {{.COV_REPORT_DIR}}/index.html"
+
+  coverage:view:
+    desc: "Open coverage report in browser"
+    cmds:
+      - task: coverage
+      - open {{.COV_REPORT_DIR}}/index.html
+
+  coverage:unit:
+    desc: "Coverage for unit tests only"
+    cmds:
+      - "{{.PYTEST}} -m unit --cov=riff.search --cov-report=term-missing"
+
+  # ============================================================================
+  # CONTINUOUS TESTING
+  # ============================================================================
+
+  watch:
+    desc: "Run tests in watch mode (requires pytest-watch)"
+    cmds:
+      - "{{.PYTEST}} -m unit --watch"
+
+  watch:all:
+    desc: "Watch and run all tests on file changes"
+    cmds:
+      - "{{.PYTEST}} --watch"
+
+  # ============================================================================
+  # CI/CD SIMULATION
+  # ============================================================================
+
+  ci:
+    desc: "Run CI pipeline locally"
+    env:
+      CI: "1"
+    cmds:
+      - task: lint
+      - task: test:unit
+      - task: test:integration
+      - task: coverage
+      - cmd: echo "✓ CI pipeline passed!"
+
+  ci:quick:
+    desc: "Quick CI check (unit tests only)"
+    env:
+      CI: "1"
+    cmds:
+      - task: lint
+      - task: test:unit
+
+  # ============================================================================
+  # QUALITY CHECKS
+  # ============================================================================
+
+  lint:
+    desc: "Run code quality checks"
+    cmds:
+      - "{{.PYTHON}} -m ruff check {{.SRC_DIR}}/riff/search"
+      - "{{.PYTHON}} -m mypy {{.SRC_DIR}}/riff/search --ignore-missing-imports"
+    ignore_error: true
+
+  format:
+    desc: "Format code with black"
+    cmds:
+      - "{{.PYTHON}} -m black {{.SRC_DIR}}/riff/search {{.TEST_DIR}}"
+
+  # ============================================================================
+  # TEST FIXTURES
+  # ============================================================================
+
+  fixtures:validate:
+    desc: "Validate test fixtures"
+    cmds:
+      - "{{.PYTHON}} -c 'from tests.fixtures.sessions import FIXTURE_SESSIONS; print(f\"✓ {len(FIXTURE_SESSIONS)} fixtures loaded\")'"
+      - "{{.PYTHON}} -c 'from tests.fixtures.builders import MockQdrantClient; print(\"✓ Mock builders validated\")'"
+
+  fixtures:generate:
+    desc: "Generate additional test fixtures from live data"
+    cmds:
+      - cmd: echo "Generating fixtures from live Qdrant..."
+      - "{{.PYTHON}} {{.TEST_DIR}}/explore_qdrant.py"
+      - cmd: echo "✓ Fixtures saved to qdrant_exploration_results.json"
+
+  # ============================================================================
+  # CLEANUP
+  # ============================================================================
+
+  clean:
+    desc: "Clean test artifacts"
+    cmds:
+      - rm -rf {{.COV_REPORT_DIR}}
+      - rm -rf {{.TEST_DIR}}/__pycache__
+      - rm -rf {{.TEST_DIR}}/**/__pycache__
+      - rm -rf {{.TEST_DIR}}/.pytest_cache
+      - rm -f {{.TEST_DIR}}/*.pyc
+      - rm -f {{.TEST_DIR}}/**/*.pyc
+      - rm -f .coverage
+      - rm -f qdrant_exploration_results.json
+      - cmd: echo "✓ Test artifacts cleaned"
+
+  clean:all:
+    desc: "Clean all artifacts including venv"
+    cmds:
+      - task: clean
+      - rm -rf ~/.nabi/venvs/riff-cli
+      - cmd: echo "✓ All artifacts cleaned (venv needs reinstall)"
+
+  # ============================================================================
+  # REPORTING
+  # ============================================================================
+
+  report:
+    desc: "Generate test execution report"
+    cmds:
+      - "{{.PYTEST}} --junit-xml=test-results.xml --html=test-report.html --self-contained-html"
+      - cmd: echo "✓ Reports generated: test-results.xml, test-report.html"
+
+  report:performance:
+    desc: "Generate performance benchmark report"
+    cmds:
+      - "{{.PYTEST}} -m performance --benchmark-only --benchmark-autosave"
+      - "{{.PYTEST}} --benchmark-compare"
+
+  # ============================================================================
+  # DEVELOPMENT HELPERS
+  # ============================================================================
+
+  debug:
+    desc: "Run tests with debugger on failure"
+    cmds:
+      - "{{.PYTEST}} -vvs --pdb --pdbcls=IPython.terminal.debugger:TerminalPdb"
+
+  debug:test:
+    desc: "Debug specific test"
+    vars:
+      TEST: '{{.CLI_ARGS}}'
+    cmds:
+      - "{{.PYTEST}} {{.TEST}} -vvs --pdb"
+
+  shell:
+    desc: "Open Python shell with test context"
+    cmds:
+      - |
+        {{.PYTHON}} -i -c "
+        import sys
+        sys.path.insert(0, '{{.SRC_DIR}}')
+        from riff.search.qdrant import QdrantSearcher
+        from tests.fixtures.sessions import FIXTURE_SESSIONS
+        from tests.fixtures.builders import MockQdrantClient
+        print('Test environment loaded.')
+        print('Available: QdrantSearcher, FIXTURE_SESSIONS, MockQdrantClient')
+        "

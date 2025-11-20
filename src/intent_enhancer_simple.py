@@ -39,13 +39,14 @@ def enhance_search_intent(original_intent: str, depth: int = 3) -> List[str]:
     return list(set(filter(None, keywords)))
 
 def extract_pattern_keywords(intent: str) -> List[str]:
-    """Extract keywords using pattern matching"""
+    """Extract keywords using pattern matching with partial matching support"""
     intent_lower = intent.lower()
     keywords = []
-    
+
     # Technical domain patterns with comprehensive expansions
     domain_patterns = {
         'nabia': ['federation', 'memchain', 'orchestration', 'agent', 'coordination', 'protocol', 'cognitive', 'intelligence'],
+        'nabi': ['nabia', 'federation', 'memchain', 'orchestration', 'agent', 'coordination'],  # Partial match support
         'claude': ['assistant', 'conversation', 'chat', 'ai', 'llm', 'dialogue', 'anthropic', 'subagent'],
         'linear': ['issue', 'project', 'task', 'ticket', 'workflow', 'development', 'tracking', 'milestone'],
         'federation': ['agent', 'coordination', 'protocol', 'handoff', 'orchestration', 'distributed', 'network', 'mesh'],
@@ -58,9 +59,10 @@ def extract_pattern_keywords(intent: str) -> List[str]:
         'agent': ['subagent', 'orchestrator', 'delegation', 'task', 'autonomous', 'cognitive', 'intelligent'],
         'oauth': ['authentication', 'authorization', 'token', 'proxy', 'grok', 'notion', 'api']
     }
-    
+
+    # Check both exact and partial matches (bidirectional)
     for term, expansions in domain_patterns.items():
-        if term in intent_lower:
+        if term in intent_lower or intent_lower in term:
             keywords.extend(expansions)
     
     # Extract quoted phrases

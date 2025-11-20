@@ -1,0 +1,1546 @@
+{
+  "2025-09-14": {
+    "date": "2025-09-14",
+    "file_count": 1,
+    "files": [
+      {
+        "path": "docs/RIFF-CLAUDE-EXTENSION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "20:45:35"
+      }
+    ],
+    "categories": {
+      "docs": 1
+    }
+  },
+  "2025-09-15": {
+    "date": "2025-09-15",
+    "file_count": 2,
+    "files": [
+      {
+        "path": "2025-09-12-nos-400.txt",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-09-12",
+        "mod_time": "02:41:11"
+      },
+      {
+        "path": "CLAUDE-DATA-SCHEMA.yaml",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "02:41:11"
+      }
+    ],
+    "categories": {
+      "docs": 1,
+      "config": 1
+    }
+  },
+  "2025-09-17": {
+    "date": "2025-09-17",
+    "file_count": 1,
+    "files": [
+      {
+        "path": "AGENTS.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "09:02:29"
+      }
+    ],
+    "categories": {
+      "docs": 1
+    }
+  },
+  "2025-09-19": {
+    "date": "2025-09-19",
+    "file_count": 5,
+    "files": [
+      {
+        "path": "src/riff-simple.nu",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "14:03:59"
+      },
+      {
+        "path": "install/install.sh",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "14:18:46"
+      },
+      {
+        "path": "install/uninstall.sh",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "14:18:58"
+      },
+      {
+        "path": "src/riff.nu",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "16:12:41"
+      },
+      {
+        "path": "src/riff-enhanced.nu",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "16:13:17"
+      }
+    ],
+    "categories": {
+      "docs": 2,
+      "code": 3
+    }
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "file_count": 9,
+    "files": [
+      {
+        "path": "src/lib/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "11:52:29"
+      },
+      {
+        "path": "src/types/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "11:53:21"
+      },
+      {
+        "path": "tests/test_intent_enhancer.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "23:34:23"
+      },
+      {
+        "path": "tests/test_jsonl_tool.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "23:35:10"
+      },
+      {
+        "path": "tests/conftest.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "23:35:30"
+      },
+      {
+        "path": "pytest.ini",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "23:35:37"
+      },
+      {
+        "path": "requirements-dev.txt",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "23:35:45"
+      },
+      {
+        "path": "src/integration/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "23:37:28"
+      },
+      {
+        "path": "docs/PATTERNS.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "23:39:09"
+      }
+    ],
+    "categories": {
+      "docs": 2,
+      "config": 1,
+      "code": 3,
+      "tests": 3
+    }
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "file_count": 2,
+    "files": [
+      {
+        "path": "tmp.J1U41IBYgx",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "19:47:05"
+      },
+      {
+        "path": "src/intent_enhancer_simple.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "19:48:05"
+      }
+    ],
+    "categories": {
+      "code": 1,
+      "docs": 1
+    }
+  },
+  "2025-10-15": {
+    "date": "2025-10-15",
+    "file_count": 1,
+    "files": [
+      {
+        "path": "_ORIGINAL_TUI_/",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "10:21:50"
+      }
+    ],
+    "categories": {
+      "docs": 1
+    }
+  },
+  "2025-10-17": {
+    "date": "2025-10-17",
+    "file_count": 17,
+    "files": [
+      {
+        "path": "src/riff/search/__init__.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "18:56:32"
+      },
+      {
+        "path": "src/riff/backends/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "18:57:34"
+      },
+      {
+        "path": "src/riff/enhance/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "18:58:17"
+      },
+      {
+        "path": "riff",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "18:58:45"
+      },
+      {
+        "path": "RIFF_UNIFIED.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "18:59:17"
+      },
+      {
+        "path": "docs/RIFF_UNIFIED.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "18:59:17"
+      },
+      {
+        "path": ".python-version",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "19:05:08"
+      },
+      {
+        "path": ".hookrc",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "20:48:47"
+      },
+      {
+        "path": "tests/explore_qdrant.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "21:08:41"
+      },
+      {
+        "path": "qdrant_exploration_results.json",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "21:08:56"
+      },
+      {
+        "path": "tests/test_search_live.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "21:09:44"
+      },
+      {
+        "path": "tests/test_search_strategy.md",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "21:12:00"
+      },
+      {
+        "path": "tests/pytest.ini",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "21:17:16"
+      },
+      {
+        "path": "Taskfile.test.yaml",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "21:18:16"
+      },
+      {
+        "path": "tests/Taskfile.test.yaml",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "21:18:16"
+      },
+      {
+        "path": "tests/TEST_AUTOMATION_SUMMARY.md",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "21:19:30"
+      },
+      {
+        "path": "tests/fixtures/",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "22:03:07"
+      }
+    ],
+    "categories": {
+      "config": 3,
+      "docs": 4,
+      "code": 3,
+      "tests": 7
+    }
+  },
+  "2025-10-18": {
+    "date": "2025-10-18",
+    "file_count": 4,
+    "files": [
+      {
+        "path": ".gitignore",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "00:25:25"
+      },
+      {
+        "path": "infrastructure/",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:26:32"
+      },
+      {
+        "path": "docs/development.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:29:32"
+      },
+      {
+        "path": "WEEK1_COMPLETE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:32:59"
+      }
+    ],
+    "categories": {
+      "docs": 3,
+      "config": 1
+    }
+  },
+  "2025-10-20": {
+    "date": "2025-10-20",
+    "file_count": 39,
+    "files": [
+      {
+        "path": "scripts/",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:32:02"
+      },
+      {
+        "path": "src/riff/tui/__init__.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "00:33:47"
+      },
+      {
+        "path": "src/riff/tui/interface.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "00:33:54"
+      },
+      {
+        "path": "docs/ARCHITECTURE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:36:56"
+      },
+      {
+        "path": "docs/TIME_FILTERING.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:37:20"
+      },
+      {
+        "path": "docs/SESSION_STATUS_2025-10-20.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-10-20",
+        "mod_time": "00:40:52"
+      },
+      {
+        "path": "docs/SEMANTIC_DAG_DESIGN.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:01:01"
+      },
+      {
+        "path": "docs/SURREALDB_INTEGRATION_ANALYSIS.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:38:14"
+      },
+      {
+        "path": "test_dag.py",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "01:47:06"
+      },
+      {
+        "path": "test_dag_comprehensive.py",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "01:47:50"
+      },
+      {
+        "path": "tests/__init__.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "01:48:10"
+      },
+      {
+        "path": "docs/VISUALIZER_IMPLEMENTATION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:49:45"
+      },
+      {
+        "path": "docs/GRAPH_MODULE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:51:22"
+      },
+      {
+        "path": "examples/",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:51:45"
+      },
+      {
+        "path": "docs/GRAPH_NAVIGATOR_USAGE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:52:19"
+      },
+      {
+        "path": "IMPLEMENTATION_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:53:17"
+      },
+      {
+        "path": "SEMANTIC_ANALYSIS_COMPLETE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:54:51"
+      },
+      {
+        "path": "src/riff/__main__.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "01:56:17"
+      },
+      {
+        "path": "Taskfile.yml",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "01:57:54"
+      },
+      {
+        "path": ".venv",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "02:06:16"
+      },
+      {
+        "path": "docs/HANDOFF_2025-10-20.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-10-20",
+        "mod_time": "02:13:38"
+      },
+      {
+        "path": "tests/graph/",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "02:51:05"
+      },
+      {
+        "path": "PERSISTENCE_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "02:51:07"
+      },
+      {
+        "path": "INTEGRATION_CHECKLIST.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "02:51:47"
+      },
+      {
+        "path": "docs/REPAIR_WORKFLOW.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "03:03:09"
+      },
+      {
+        "path": "docs/SYNC_SURREALDB.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:06:21"
+      },
+      {
+        "path": "docs/IMMUTABLE_STORE_ARCHITECTURE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:07:12"
+      },
+      {
+        "path": "docs/PHASE_6B_QUICKSTART.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:07:43"
+      },
+      {
+        "path": "docs/IMMUTABLE_STORE_VISUAL_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:09:01"
+      },
+      {
+        "path": "docs/PHASE_6B_IMPLEMENTATION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:09:03"
+      },
+      {
+        "path": "docs/PHASE6B_IMPLEMENTATION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:09:48"
+      },
+      {
+        "path": "docs/PHASE_6B_ROADMAP.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:11:21"
+      },
+      {
+        "path": "docs/PHASE_6B_INDEX.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:12:28"
+      },
+      {
+        "path": "docs/PHASE_6B_STRATEGIC_HANDOFF.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:14:21"
+      },
+      {
+        "path": "tests/surrealdb/",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "11:23:00"
+      },
+      {
+        "path": "tests/test_persistence_provider_integration.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "11:24:53"
+      },
+      {
+        "path": "docs/PHASE_6B_INTEGRATION_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:25:49"
+      },
+      {
+        "path": "docs/PHASE_6C_FEDERATION_INTEGRATION_PLAN.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "15:00:35"
+      },
+      {
+        "path": "docs/_PHASE_6C_KICKOFF_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "15:01:24"
+      }
+    ],
+    "categories": {
+      "config": 3,
+      "docs": 29,
+      "code": 3,
+      "tests": 4
+    }
+  },
+  "2025-10-22": {
+    "date": "2025-10-22",
+    "file_count": 4,
+    "files": [
+      {
+        "path": "docs/CURRENT_STATE_ASSESSMENT_2025-10-22.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-10-22",
+        "mod_time": "18:20:56"
+      },
+      {
+        "path": "docs/BLOCKER_STATUS_AND_RESOLUTION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "18:23:40"
+      },
+      {
+        "path": "docs/CONSOLIDATED_INDEX_AND_LINK_MAPPER.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "18:24:33"
+      },
+      {
+        "path": "docs/BLOCKER_RESOLUTION_GUIDANCE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "19:51:08"
+      }
+    ],
+    "categories": {
+      "docs": 4
+    }
+  },
+  "2025-10-23": {
+    "date": "2025-10-23",
+    "file_count": 11,
+    "files": [
+      {
+        "path": "src/index-claude-export.nu",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "10:08:41"
+      },
+      {
+        "path": "_RIFF_CLI_ARCHITECTURE_EXPLORATION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:11:25"
+      },
+      {
+        "path": "_CLI_ARCHITECTURE_DIAGRAM.txt",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:11:50"
+      },
+      {
+        "path": "docs/_CLI_ARCHITECTURE_DIAGRAM.txt",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:11:50"
+      },
+      {
+        "path": "_KEY_FINDINGS_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:12:11"
+      },
+      {
+        "path": "_EXPLORATION_INDEX.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:12:28"
+      },
+      {
+        "path": "EXPLORATION_REPORT.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:12:51"
+      },
+      {
+        "path": "QUICK_REFERENCE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:13:09"
+      },
+      {
+        "path": "EXPLORATION_INDEX.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:13:51"
+      },
+      {
+        "path": "START_HERE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:14:17"
+      },
+      {
+        "path": "docs/START_HERE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:14:17"
+      }
+    ],
+    "categories": {
+      "docs": 10,
+      "code": 1
+    }
+  },
+  "2025-10-24": {
+    "date": "2025-10-24",
+    "file_count": 9,
+    "files": [
+      {
+        "path": "NABI_EXPLORATION_INVENTORY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:10:29"
+      },
+      {
+        "path": "NABI_QUICK_REFERENCE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:11:03"
+      },
+      {
+        "path": "EXPLORATION_SUMMARY.txt",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:11:45"
+      },
+      {
+        "path": "START_HERE_NABI_EXPLORATION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:12:57"
+      },
+      {
+        "path": "PHASE3_COMPLETION_REPORT.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "12:07:55"
+      },
+      {
+        "path": "ROUTING_PATTERN_GUIDE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "12:09:18"
+      },
+      {
+        "path": "docs/ROUTING_PATTERN_GUIDE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "12:09:18"
+      },
+      {
+        "path": "PHASE3_CODE_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "12:10:02"
+      },
+      {
+        "path": "phase3_verification.sh",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "12:11:18"
+      }
+    ],
+    "categories": {
+      "docs": 9
+    }
+  },
+  "2025-10-26": {
+    "date": "2025-10-26",
+    "file_count": 9,
+    "files": [
+      {
+        "path": "src/riff-claude.nu",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "00:13:09"
+      },
+      {
+        "path": "_archive/",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:52:54"
+      },
+      {
+        "path": "docs/WEEK1_COMPLETION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:54:35"
+      },
+      {
+        "path": "docs/RECOVERY_SESSION_INTEGRATION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:56:06"
+      },
+      {
+        "path": "docs/RECOVERY_ENTITIES_ALIGNMENT.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:56:34"
+      },
+      {
+        "path": "ALIGN_COHERENCE_VALIDATION_REPORT.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "23:01:19"
+      },
+      {
+        "path": "SEMANTIC_RELATIONSHIP_DIAGRAM.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "23:02:08"
+      },
+      {
+        "path": "FEDERATION_INTEGRATION_BRIDGE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "23:03:01"
+      },
+      {
+        "path": "START_HERE_ALIGN_VALIDATION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "23:04:57"
+      }
+    ],
+    "categories": {
+      "code": 1,
+      "docs": 8
+    }
+  },
+  "2025-10-27": {
+    "date": "2025-10-27",
+    "file_count": 1,
+    "files": [
+      {
+        "path": "RIFF_CLI_ANALYSIS.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "12:43:07"
+      }
+    ],
+    "categories": {
+      "docs": 1
+    }
+  },
+  "2025-10-28": {
+    "date": "2025-10-28",
+    "file_count": 10,
+    "files": [
+      {
+        "path": "src/intent_enhancer.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "06:06:47"
+      },
+      {
+        "path": "ENTERPRISE_ARCHITECTURE_ASSESSMENT.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "08:17:36"
+      },
+      {
+        "path": "src/riff/surrealdb/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "09:49:16"
+      },
+      {
+        "path": "src/claude_schema.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "09:49:38"
+      },
+      {
+        "path": "src/riff/graph/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "09:57:24"
+      },
+      {
+        "path": "REPOSITORY_ASSESSMENT_2025-10-28.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-10-28",
+        "mod_time": "18:47:20"
+      },
+      {
+        "path": "QUICK_REFERENCE_2025-10-28.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-10-28",
+        "mod_time": "18:48:08"
+      },
+      {
+        "path": "docs/COMPREHENSIVE_ARCHITECTURE_ANALYSIS_2025-10-28.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-10-28",
+        "mod_time": "20:15:19"
+      },
+      {
+        "path": "docs/ANALYSIS_QUICK_REFERENCE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "20:16:23"
+      },
+      {
+        "path": "docs/_ANALYSIS_INDEX.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "20:16:54"
+      }
+    ],
+    "categories": {
+      "docs": 6,
+      "code": 4
+    }
+  },
+  "2025-10-31": {
+    "date": "2025-10-31",
+    "file_count": 1,
+    "files": [
+      {
+        "path": ".envrc",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": null,
+        "mod_time": "16:20:40"
+      }
+    ],
+    "categories": {
+      "config": 1
+    }
+  },
+  "2025-11-02": {
+    "date": "2025-11-02",
+    "file_count": 6,
+    "files": [
+      {
+        "path": "src/riff_cli/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "13:21:32"
+      },
+      {
+        "path": "session-picker/",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "13:22:34"
+      },
+      {
+        "path": "STABILIZATION_PLAN.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:12:17"
+      },
+      {
+        "path": "src/riff/__init__.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "22:24:11"
+      },
+      {
+        "path": "src/riff/config.pyi",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "22:25:21"
+      },
+      {
+        "path": "PHASE_1_2_VALIDATION_REPORT.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "23:10:25"
+      }
+    ],
+    "categories": {
+      "docs": 3,
+      "code": 3
+    }
+  },
+  "2025-11-03": {
+    "date": "2025-11-03",
+    "file_count": 3,
+    "files": [
+      {
+        "path": "TUI_ENHANCEMENT_COMPLETE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "02:21:26"
+      },
+      {
+        "path": "src/riff/search/preview.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "02:33:48"
+      },
+      {
+        "path": "ENHANCEMENTS_2025-11-03.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-11-03",
+        "mod_time": "23:56:00"
+      }
+    ],
+    "categories": {
+      "docs": 2,
+      "code": 1
+    }
+  },
+  "2025-11-04": {
+    "date": "2025-11-04",
+    "file_count": 7,
+    "files": [
+      {
+        "path": "MANIFEST_AUTO_REINDEX_GUIDE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:11:20"
+      },
+      {
+        "path": "MANIFEST_ADAPTER_ARCHITECTURE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:13:54"
+      },
+      {
+        "path": "COMPLETION_SUMMARY_2025-11-04.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": "2025-11-04",
+        "mod_time": "00:14:22"
+      },
+      {
+        "path": "TESTING_RESULTS_2025-11-04.md",
+        "status": "untracked",
+        "category": "config",
+        "filename_date": "2025-11-04",
+        "mod_time": "00:17:41"
+      },
+      {
+        "path": "FINAL_DELIVERY_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:18:10"
+      },
+      {
+        "path": "src/riff/memory_producer.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "14:01:15"
+      },
+      {
+        "path": "src/riff/manifest_adapter.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "14:02:50"
+      }
+    ],
+    "categories": {
+      "code": 2,
+      "docs": 4,
+      "config": 1
+    }
+  },
+  "2025-11-07": {
+    "date": "2025-11-07",
+    "file_count": 5,
+    "files": [
+      {
+        "path": "RIFF_REPAIR_THEORY_ANALYSIS.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:14:19"
+      },
+      {
+        "path": "DUPLICATE_TOOL_RESULT_IMPLEMENTATION_GUIDE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:15:01"
+      },
+      {
+        "path": "REPAIR_ARCHITECTURE_COMPARISON.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:15:43"
+      },
+      {
+        "path": "THEORY_ANALYSIS_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:16:24"
+      },
+      {
+        "path": "RIFF_ANALYSIS_INDEX.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "22:17:08"
+      }
+    ],
+    "categories": {
+      "docs": 5
+    }
+  },
+  "2025-11-08": {
+    "date": "2025-11-08",
+    "file_count": 24,
+    "files": [
+      {
+        "path": "CONSOLIDATION_COMPANION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "05:15:20"
+      },
+      {
+        "path": "DUPLICATE_HANDLER_GUIDE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "05:35:16"
+      },
+      {
+        "path": "DUPLICATE_HANDLER_IMPLEMENTATION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "05:36:01"
+      },
+      {
+        "path": "tests/test_duplicate_tool_results.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "05:37:10"
+      },
+      {
+        "path": "DUPLICATE_HANDLER_ARCHITECTURE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "05:37:11"
+      },
+      {
+        "path": "DUPLICATE_HANDLER_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "05:37:52"
+      },
+      {
+        "path": "tests/TEST_DUPLICATE_TOOL_RESULTS_README.md",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "05:38:41"
+      },
+      {
+        "path": "src/riff/classic/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "05:38:54"
+      },
+      {
+        "path": "tests/test_duplicate_handler.py",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "05:39:11"
+      },
+      {
+        "path": "tests/DUPLICATE_TESTS_QUICK_START.md",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "05:39:29"
+      },
+      {
+        "path": "DUPLICATE_HANDLER_README.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "05:39:59"
+      },
+      {
+        "path": "DELIVERABLES.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "05:40:39"
+      },
+      {
+        "path": "PHASE1_DAY1_COMPLETION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "09:51:53"
+      },
+      {
+        "path": "src/riff/visualization/",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "09:56:07"
+      },
+      {
+        "path": "tests/unit/",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "10:02:21"
+      },
+      {
+        "path": "tests/integration/",
+        "status": "untracked",
+        "category": "tests",
+        "filename_date": null,
+        "mod_time": "10:03:09"
+      },
+      {
+        "path": "PHASE1_DAY3_COMPLETION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "10:04:33"
+      },
+      {
+        "path": "PHASE1_PROGRESS_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "10:05:43"
+      },
+      {
+        "path": "docs/visualization-module-quickstart.mdx",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:24:09"
+      },
+      {
+        "path": "docs/jsonl-specification.mdx",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:24:55"
+      },
+      {
+        "path": "docs/api-reference.mdx",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:25:40"
+      },
+      {
+        "path": "docs/examples.mdx",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:26:28"
+      },
+      {
+        "path": "docs/INDEX.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:26:57"
+      },
+      {
+        "path": "PHASE1_DAY4_COMPLETION.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "11:28:13"
+      }
+    ],
+    "categories": {
+      "docs": 16,
+      "code": 2,
+      "tests": 6
+    }
+  },
+  "2025-11-10": {
+    "date": "2025-11-10",
+    "file_count": 5,
+    "files": [
+      {
+        "path": "BINARY_RELEASE_READINESS.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:56:58"
+      },
+      {
+        "path": "BINARY_RELEASE_CHECKLIST.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:57:30"
+      },
+      {
+        "path": "BINARY_RELEASE_SUMMARY.txt",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:58:03"
+      },
+      {
+        "path": "BINARY_RELEASE_INDEX.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "00:58:30"
+      },
+      {
+        "path": "src/riff/cli.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "19:31:13"
+      }
+    ],
+    "categories": {
+      "code": 1,
+      "docs": 4
+    }
+  },
+  "2025-11-11": {
+    "date": "2025-11-11",
+    "file_count": 1,
+    "files": [
+      {
+        "path": "uv.lock",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "10:38:55"
+      }
+    ],
+    "categories": {
+      "docs": 1
+    }
+  },
+  "2025-11-12": {
+    "date": "2025-11-12",
+    "file_count": 8,
+    "files": [
+      {
+        "path": "CURRENT_STATE_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "04:22:00"
+      },
+      {
+        "path": "SURREALDB_CONSOLIDATION_DISCOVERY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "04:40:30"
+      },
+      {
+        "path": "SURREALDB_QUICK_REFERENCE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "04:41:16"
+      },
+      {
+        "path": "src/riff/config.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "05:12:15"
+      },
+      {
+        "path": "PHASE1_SURREALDB_ACTIVATION_COMPLETE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "13:14:58"
+      },
+      {
+        "path": "src/riff/tui/graph_navigator.py",
+        "status": "untracked",
+        "category": "code",
+        "filename_date": null,
+        "mod_time": "13:18:08"
+      },
+      {
+        "path": "PHASE2_TUI_INTEGRATION_COMPLETE.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "13:19:47"
+      },
+      {
+        "path": "SURREALDB_ACTIVATION_SUMMARY.md",
+        "status": "untracked",
+        "category": "docs",
+        "filename_date": null,
+        "mod_time": "13:21:36"
+      }
+    ],
+    "categories": {
+      "code": 2,
+      "docs": 6
+    }
+  }
+}

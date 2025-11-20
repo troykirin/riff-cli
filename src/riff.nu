@@ -1,5 +1,7 @@
 #!/usr/bin/env nu
 
+use lib/riff-core.nu [collect-jsonl-files scan-file]
+
 # Riff CLI - Fuzzy search for UUIDs in Claude conversation logs
 # Usage: riff [search_term] [options]
 # Version: 1.2.0
@@ -29,10 +31,7 @@ def main [
     }
     
     # Find all JSONL files recursively
-    let jsonl_files = (
-        glob ($path | path expand | path join "**/*.jsonl")
-        | where ($it | path type) == "file"
-    )
+    let jsonl_files = collect-jsonl-files $path
     
     let total_files = ($jsonl_files | length)
     
@@ -60,57 +59,10 @@ def main [
                 let spinner = ["⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"]
                 let frame_index = ((($file_index / 10) mod 10) | into int)
                 let frame = ($spinner | get $frame_index)
-                print -n $"\r⏳ Processing ($total_files) files... $frame \(($file_index + 1)/($total_files)\)"
+                print -n $"\r⏳ Processing ($total_files) files... ($frame) \(($file_index + 1)/($total_files)\)"
             }
-            
-            open $file_path
-            | lines
-            | enumerate
-            | where ($it.item | str trim | str length) > 0
-            | each { |line|
-                try {
-                    let parsed = ($line.item | from json)
-                    let line_num = ($line.index + 1)
-                    
-                    # Extract UUIDs from all string fields that look like UUIDs
-                    let uuids = (
-                        $parsed 
-                        | transpose key value 
-                        | where ($it.value | describe) == "string" 
-                            and ($it.value | str length) == 36 
-                            and ($it.value | str contains "-")
-                        | each { |field|
-                            let parts = ($field.value | split row "-")
-                            if ($parts | length) == 5 {
-                                {
-                                    file: ($file_path | path basename),
-                                    full_path: $file_path,
-                                    line: $line_num,
-                                    uuid: $field.value,
-                                    field: $field.key,
-                                    context: ($parsed | to json --raw | str substring 0..150)
-                                }
-                            } else { null }
-                        }
-                        | where $it != null
-                    )
-                    
-                    # Filter based on search term if provided
-                    if ($search_term | str length) > 0 {
-                        let json_text = ($parsed | to json --raw | str downcase)
-                        if ($json_text | str contains ($search_term | str downcase)) {
-                            $uuids
-                        } else {
-                            []
-                        }
-                    } else {
-                        $uuids
-                    }
-                } catch {
-                    []
-                }
-            }
-            | flatten
+
+            scan-file $file_path --search-term $search_term --context-length 150
         }
         | flatten
         | take $limit  # Apply limit to results
@@ -130,7 +82,7 @@ def main [
     }
     
     if $verbose {
-        print $"🎯 Found ($results | length) UUID matches (limited to $limit)"
+        print $"🎯 Found ($results | length) UUID matches with limit ($limit)"
     }
 
     # Format output based on options
@@ -143,31 +95,108 @@ def main [
             $"($result.uuid) | ($result.file):($result.line) | ($result.field) | ($result.context)"
         }
     } else {
-        # Prepare data for fzf
+        # Build entry metadata for interactive selection
+        let entries = (
+            $results
+            | each { |result|
+                let preview_value = ($result | get preview?)
+                let raw_snippet = (
+                    if (($preview_value | describe) == "nothing") {
+                        $result.context
+                    } else if (($preview_value | str length) == 0) {
+                        $result.context
+                    } else {
+                        $preview_value
+                    }
+                )
+                let snippet = (
+                    if ($raw_snippet | str length) == 0 {
+                        "(no preview available)"
+                    } else if ($raw_snippet | str length) > 1200 {
+                        [($raw_snippet | str substring 0..1200), "…"] | str join
+                    } else {
+                        $raw_snippet
+                    }
+                )
+                let dir_path = ($result.full_path | path dirname)
+                let display_label = $"($result.uuid)  ($result.file):($result.line)  [$result.field]"
+                let preview_block = $"UUID : ($result.uuid)\nFile : ($result.full_path)\nLine : ($result.line)\nField: ($result.field)\nDir  : ($dir_path)\n\n($snippet)"
+                {
+                    display: $display_label,
+                    preview: $preview_block,
+                    uuid: $result.uuid,
+                    full_path: $result.full_path,
+                    dir: $dir_path,
+                    cd: $"cd ($dir_path)",
+                    cc: $"cc -r ($result.uuid)",
+                    claude: $"claude -r ($result.uuid)"
+                }
+            }
+        )
+
+        let temp_file = (mktemp)
+        $entries | to json | save -f $temp_file
+
         let fzf_input = (
-            $results | each { |result|
-                $"($result.uuid) | ($result.file):($result.line) | ($result.field) | ($result.context)"
+            $entries
+            | enumerate
+            | each { |it|
+                let idx = $it.index
+                let display_line = $it.item.display
+                $"($idx)\t[($idx)] ($display_line)"
             }
             | str join (char nl)
         )
-        
-        # Use fzf for interactive selection
+
+        let preview_cmd = $"nu -c 'open "($temp_file)" | get {{1}} | get preview'"
+
         try {
             let selected = (
-                $fzf_input 
-                | fzf --multi --preview 'echo {}' --preview-window 'up:3:wrap' --prompt 'Select UUID(s): ' --header 'Use arrow keys to navigate, Enter to select, Tab for multiple'
+                $fzf_input
+                | fzf --ansi --multi --delimiter "\t" --with-nth=2 --preview $preview_cmd --preview-window 'up,60%,wrap' --prompt 'Select entry: ' --header 'Enter: copy commands | Tab: multi-select'
             )
-            
-            if ($selected | str length) > 0 {
-                # Extract just the UUIDs from selected lines
-                $selected 
-                | lines 
-                | each { |line| 
-                    ($line | split row ' | ' | get 0)
+
+            let output = (
+                if ($selected | str length) > 0 {
+                    let selection_indices = (
+                        $selected
+                        | lines
+                        | where ($it | str length) > 0
+                        | each { |line|
+                            ($line | split row '\t' | get 0 | into int)
+                        }
+                    )
+
+                    let data = (open $temp_file)
+                    let chosen = (
+                        $selection_indices
+                        | each { |idx| $data | get $idx }
+                    )
+
+                    $chosen | enumerate | each { |item|
+                        let entry = $item.item
+                        if $item.index > 0 {
+                            print ""
+                        }
+                        print $"UUID : ($entry.uuid)"
+                        print $"Path : ($entry.full_path)"
+                        print $"Dir  : ($entry.dir)"
+                        print "Commands:" 
+                        print $"  ($entry.cd)"
+                        print $"  ($entry.cc)"
+                        print $"  ($entry.claude)"
+                    }
+
+                    $chosen | get uuid
+                } else {
+                    []
                 }
-            }
+            )
+
+            rm $temp_file
+            $output
         } catch {
-            # If fzf was cancelled or failed
+            rm $temp_file
             []
         }
     }
