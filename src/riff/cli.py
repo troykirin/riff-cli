@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import Any
 
 from rich.console import Console
 
@@ -14,10 +15,65 @@ from .manifest_adapter import get_manifest_adapter
 from .enhance import IntentEnhancer
 from .graph import ConversationDAG, JSONLLoader
 from .graph.visualizer import ConversationTreeVisualizer
-from .visualization import RiffDagTUIHandler, convert_to_dag_format, write_temp_jsonl
+from .visualization import RiffDagTUIHandler, write_temp_jsonl
 from .config import get_config
 
 console = Console()
+
+
+class GroupedSubparsersFormatter(argparse.RawDescriptionHelpFormatter):
+    """Custom formatter that visually groups subcommands by category"""
+
+    def start_section(self, heading: str | None) -> None:
+        """Replace 'positional arguments' with our custom grouped layout"""
+        if heading == "positional arguments":
+            heading = "commands by dependency level"
+        super().start_section(heading)
+
+    def _format_action(self, action: Any) -> str:
+        """Format actions with custom command grouping"""
+        # Only apply special formatting to subparsers action
+        if isinstance(action, argparse._SubParsersAction):  # type: ignore[attr-defined]
+            # Build a mapping of command name to help text
+            help_map: dict[str, str] = {}
+            if hasattr(action, '_choices_actions'):
+                for choice_action in action._choices_actions:  # type: ignore[attr-defined]
+                    dest = getattr(choice_action, 'dest', None)
+                    help_text = getattr(choice_action, 'help', '')
+                    if dest:
+                        help_map[dest] = help_text or ""
+
+            # Command groups definition
+            groups: dict[str, list[str]] = {
+                "Core Commands (No external dependencies)":
+                    ["scan", "fix", "tui", "graph-classic"],
+                "Semantic Commands (Requires Qdrant)":
+                    ["search", "browse", "visualize", "graph"],
+                "Advanced (Requires SurrealDB, etc)":
+                    ["sync:surrealdb"],
+            }
+
+            # Format each group
+            lines = []
+            for group_title, command_names in groups.items():
+                lines.append(f"  {group_title}:")
+
+                for cmd_name in command_names:
+                    help_text = help_map.get(cmd_name, "")
+                    if help_text:
+                        lines.append(f"    {cmd_name:<18} {help_text}")
+                    else:
+                        lines.append(f"    {cmd_name}")
+
+                lines.append("")  # Add blank line between groups
+
+            # Remove trailing blank line
+            if lines and lines[-1] == "":
+                lines.pop()
+
+            return "\n" + "\n".join(lines) + "\n"
+        else:
+            return super()._format_action(action)
 
 
 def cmd_visualize(args) -> int:
@@ -36,7 +92,7 @@ def cmd_visualize(args) -> int:
             console.print(handler.get_installation_hint())
             return 1
 
-        console.print(f"[green]✓[/green] Opening DAG viewer...\n")
+        console.print("[green]✓[/green] Opening DAG viewer...\n")
         exit_code = handler.launch(jsonl_path)
 
         if exit_code != 0:
@@ -352,13 +408,13 @@ def _check_and_reindex_if_needed(qdrant_url: str) -> None:
         if indexed_paths and not manifest.validate_index_integrity(indexed_paths):
             needs_reindex = True
             reindex_reason = manifest.get_changes_summary()
-    except Exception as e:
+    except Exception:
         # If we can't check Qdrant, that's ok - just skip validation
         # (Qdrant might be starting up, etc.)
         pass
 
     if needs_reindex and reindex_reason:
-        console.print(f"\n[cyan]📚 Detecting changes in Claude projects...[/cyan]")
+        console.print("\n[cyan]📚 Detecting changes in Claude projects...[/cyan]")
         console.print(f"[dim]{reindex_reason} - reindexing[/dim]")
 
         # Log reindex start to memory substrate
@@ -387,7 +443,7 @@ def _check_and_reindex_if_needed(qdrant_url: str) -> None:
             duration_seconds = int(time.time() - start_time)
 
             if result.returncode == 0:
-                console.print(f"[green]✓ Reindexing complete[/green]\n")
+                console.print("[green]✓ Reindexing complete[/green]\n")
                 manifest.save_manifest()
 
                 # Log successful reindex completion to memory substrate
@@ -538,21 +594,6 @@ def cmd_search(args) -> int:
         # Handle --visualize flag: export results and launch DAG viewer
         if args.visualize and results:
             try:
-                # Determine output file
-                if args.export:
-                    output_file = Path(args.export)
-                else:
-                    # Use temp file in XDG cache directory from config
-                    import tempfile
-                    config = get_config()
-                    cache_dir = config.paths.get("cache", Path.home() / ".cache" / "nabi" / "riff")
-                    cache_dir.mkdir(parents=True, exist_ok=True)
-                    output_file = Path(tempfile.mktemp(
-                        dir=cache_dir,
-                        prefix="search_",
-                        suffix=".jsonl"
-                    ))
-
                 # Convert results to DAG format and write
                 console.print(f"\n[cyan]Exporting {len(results)} results to JSONL...[/cyan]")
 
@@ -573,7 +614,7 @@ def cmd_search(args) -> int:
                 console.print(f"[green]✓[/green] Exported to [cyan]{jsonl_path}[/cyan]")
 
                 # Launch visualizer
-                console.print(f"\n[cyan]Launching interactive DAG viewer...[/cyan]\n")
+                console.print("\n[cyan]Launching interactive DAG viewer...[/cyan]\n")
                 handler = RiffDagTUIHandler()
 
                 if not handler.verify_installed():
@@ -746,10 +787,11 @@ def cmd_browse(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build unified argument parser"""
+    """Build unified argument parser with commands grouped by dependency level"""
     parser = argparse.ArgumentParser(
         prog="riff",
-        description="Riff: search Claude conversations & repair JSONL sessions"
+        description="Riff: search Claude conversations & repair JSONL sessions",
+        formatter_class=GroupedSubparsersFormatter
     )
 
     # Global options
@@ -757,7 +799,38 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 
-    # ===== NEW SEARCH COMMANDS =====
+    # ===== CORE COMMANDS (No external dependencies) =====
+    core_group = subparsers.add_parser(
+        "scan",
+        help="Scan for JSONL issues",
+        parents=[],
+    )
+    core_group.add_argument("target", nargs="?", default=".", help="Directory or file to scan")
+    core_group.add_argument("--glob", default="**/*.jsonl", help="Glob pattern")
+    core_group.add_argument("--show", action="store_true", help="Show issue details")
+    core_group.set_defaults(func=cmd_scan)
+
+    core_fix = subparsers.add_parser("fix", help="Repair missing tool_result in JSONL")
+    core_fix.add_argument("path", help="JSONL file to repair")
+    core_fix.add_argument("--in-place", action="store_true", help="Write back to same file")
+    core_fix.set_defaults(func=cmd_fix)
+
+    core_tui = subparsers.add_parser("tui", help="Interactive TUI for JSONL browsing")
+    core_tui.add_argument("target", nargs="?", default=".", help="Directory to browse")
+    core_tui.add_argument("--glob", default="**/*.jsonl", help="File glob")
+    core_tui.add_argument("--fzf", action="store_true", help="Use fzf for file picking")
+    core_tui.set_defaults(func=cmd_tui)
+
+    core_graph_classic = subparsers.add_parser(
+        "graph-classic",
+        help="Generate conversation graph (mermaid/dot format)"
+    )
+    core_graph_classic.add_argument("path", help="JSONL file path")
+    core_graph_classic.add_argument("--format", choices=["dot", "mermaid"], default="mermaid")
+    core_graph_classic.add_argument("--out", help="Output file path")
+    core_graph_classic.set_defaults(func=cmd_graph_classic)
+
+    # ===== SEMANTIC COMMANDS (Requires Qdrant) =====
 
     # Search command
     p_search = subparsers.add_parser(
@@ -799,25 +872,6 @@ def build_parser() -> argparse.ArgumentParser:
     p_visualize.add_argument("input", help="JSONL file to visualize")
     p_visualize.set_defaults(func=cmd_visualize)
 
-    # ===== CLASSIC COMMANDS (PRESERVED) =====
-
-    p_scan = subparsers.add_parser("scan", help="Scan for JSONL issues")
-    p_scan.add_argument("target", nargs="?", default=".", help="Directory or file to scan")
-    p_scan.add_argument("--glob", default="**/*.jsonl", help="Glob pattern")
-    p_scan.add_argument("--show", action="store_true", help="Show issue details")
-    p_scan.set_defaults(func=cmd_scan)
-
-    p_fix = subparsers.add_parser("fix", help="Repair missing tool_result in JSONL")
-    p_fix.add_argument("path", help="JSONL file to repair")
-    p_fix.add_argument("--in-place", action="store_true", help="Write back to same file")
-    p_fix.set_defaults(func=cmd_fix)
-
-    p_tui = subparsers.add_parser("tui", help="Interactive TUI for JSONL browsing")
-    p_tui.add_argument("target", nargs="?", default=".", help="Directory to browse")
-    p_tui.add_argument("--glob", default="**/*.jsonl", help="File glob")
-    p_tui.add_argument("--fzf", action="store_true", help="Use fzf for file picking")
-    p_tui.set_defaults(func=cmd_tui)
-
     # Graph command - new semantic DAG visualization
     p_graph = subparsers.add_parser(
         "graph",
@@ -831,15 +885,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_graph.add_argument("--surrealdb-url", help="SurrealDB HTTP API URL for repair backend (auto-detects SurrealDB if not specified)")
     p_graph.set_defaults(func=cmd_graph)
 
-    # Classic graph command (for backwards compatibility)
-    p_graph_classic = subparsers.add_parser(
-        "graph-classic",
-        help="Generate conversation graph (mermaid/dot format)"
-    )
-    p_graph_classic.add_argument("path", help="JSONL file path")
-    p_graph_classic.add_argument("--format", choices=["dot", "mermaid"], default="mermaid")
-    p_graph_classic.add_argument("--out", help="Output file path")
-    p_graph_classic.set_defaults(func=cmd_graph_classic)
+    # ===== ADVANCED COMMANDS (Requires SurrealDB, etc) =====
 
     # Sync to SurrealDB command - Phase 6B
     p_sync_surrealdb = subparsers.add_parser(
