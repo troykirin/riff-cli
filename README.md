@@ -138,6 +138,94 @@ riff-cli/
 - Legacy files moved to `archive/`
 - Infrastructure organized in `infrastructure/`
 
+## 🚀 Installation & Setup
+
+### Tab Completion (Bash & Zsh)
+
+Tab completion provides context-aware suggestions for commands, flags, and files.
+
+#### Bash Setup
+
+Add this line to your `~/.bashrc`:
+
+```bash
+source /path/to/riff-cli/src/riff/completion.sh
+```
+
+Then reload your shell:
+
+```bash
+source ~/.bashrc
+```
+
+Or start a new terminal session.
+
+#### Zsh Setup
+
+Add this line to your `~/.zshrc`:
+
+```bash
+source /path/to/riff-cli/src/riff/completion.sh
+```
+
+Then reload your shell:
+
+```bash
+source ~/.zshrc
+```
+
+Or start a new terminal session.
+
+#### Homebrew / System-Wide Installation
+
+If installing riff-cli via Homebrew or system package manager, the completion script will be automatically placed in the correct directory:
+
+**Bash (macOS/Linux):**
+```bash
+cp src/riff/completion.sh /usr/local/etc/bash_completion.d/riff
+# Or for Homebrew-managed completion:
+cp src/riff/completion.sh $(brew --prefix)/etc/bash_completion.d/riff
+```
+
+**Zsh (macOS/Linux):**
+```bash
+cp src/riff/completion.sh /usr/local/share/zsh/site-functions/_riff
+# Or for Homebrew-managed completion:
+cp src/riff/completion.sh $(brew --prefix)/share/zsh/site-functions/_riff
+```
+
+### Usage Examples
+
+After sourcing the completion script, you'll have tab completion for:
+
+**Commands:**
+```bash
+riff [TAB][TAB]              # Shows all commands
+riff sca[TAB]                # Completes to "scan"
+riff sear[TAB]               # Completes to "search"
+riff gra[TAB]                # Completes to "graph"
+```
+
+**Flags:**
+```bash
+riff search --[TAB]          # Shows: --limit, --min-score, --uuid, --ai, etc.
+riff scan --[TAB]            # Shows: --glob, --show
+riff fix --[TAB]             # Shows: --in-place
+riff graph --[TAB]           # Shows: --interactive, --surrealdb-url
+```
+
+**File Paths:**
+```bash
+riff scan ~/claude/[TAB]     # Auto-completes directory paths
+riff fix /path/to/[TAB]      # Auto-completes .jsonl files
+riff visualize session.[TAB] # Auto-completes .jsonl files
+```
+
+**Format Options:**
+```bash
+riff graph-classic file.jsonl --format [TAB]  # Shows: dot, mermaid
+```
+
 ## 📚 Documentation
 
 ### Getting Started
