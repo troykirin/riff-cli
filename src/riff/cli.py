@@ -913,18 +913,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    # If no command specified, launch TUI (browse mode with empty query)
+    # If no command specified, show help and exit
     if not hasattr(args, 'func'):
-        # Create mock args for browse command
-        class BrowseArgs(Namespace):
-            def __init__(self):
-                super().__init__()
-                self.query = ""
-                self.limit = 20
-                self.qdrant_url = None
-                self.func = cmd_browse
-
-        args = BrowseArgs()
+        parser.print_help()
+        return 0
 
     try:
         return args.func(args)
