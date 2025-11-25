@@ -12,6 +12,10 @@ venv/
 dist/
 build/
 
+# uv
+.uv/
+# Note: uv.lock should be committed for reproducible builds
+
 # IDE
 .ropeproject/
 .vscode/

@@ -21,11 +21,6 @@ search = [
     "qdrant-client>=1.7.0",
     "sentence-transformers>=2.2.0",
 ]
-dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "mypy>=1.0.0",
-]
 
 [project.scripts]
 riff = "riff.cli:main"
@@ -34,9 +29,65 @@ riff = "riff.cli:main"
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
     "mypy>=1.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
 ]
 
 [build-system]
 requires = ["uv_build>=0.8.22,<0.9.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Test markers
+markers = [
+    "unit: Unit tests (fast, isolated)",
+    "integration: Integration tests (may use external services)",
+    "live: Tests against live Qdrant (read-only)",
+    "performance: Performance tests",
+    "slow: Tests that take >5s (deselect with '-m \"not slow\"')",
+    "require_qdrant: Test requires running Qdrant instance",
+    "asyncio: Async tests (pytest-asyncio marker)",
+]
+
+# Default test options
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--disable-warnings",
+]
+
+# Coverage settings (optional, requires pytest-cov)
+# Uncomment to enable coverage by default:
+# addopts = [
+#     "-v",
+#     "--tb=short",
+#     "--strict-markers",
+#     "--cov=riff",
+#     "--cov-report=html",
+#     "--cov-report=term-missing",
+#     "--cov-fail-under=80",
+# ]
+
+# Timeout (requires pytest-timeout plugin)
+# timeout = 30
+
+# Logging
+log_cli = false
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+# Warning filters
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
