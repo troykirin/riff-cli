@@ -181,6 +181,35 @@ collection = "claude_sessions"
 location = "~/.nabi/venvs/riff"
 
 # ============================================================================
+# AUTO-SYNC: Prevent Stale Qdrant Indexes
+# ============================================================================
+#
+# Automatically sync new/modified Claude sessions to remote Qdrant instances
+# (like WSL GPU Qdrant) to prevent stale indexes with wrong UUIDs.
+#
+[sync]
+
+# Enable automatic syncing via LaunchAgent (macOS) or cron
+# Default: false (must be manually enabled after running install-auto-sync.sh)
+enabled = false
+
+# How often to sync (in hours)
+# Options: 1, 3, 6, 12, 24
+# Default: 6 (runs 4 times daily)
+# Lower values keep index fresher but use more CPU/network
+interval_hours = 6
+
+# Minimum number of changed files before triggering sync
+# Default: 1 (sync even if only 1 session changed)
+# Increase to reduce sync frequency for minor changes
+min_changes_threshold = 1
+
+# Maximum age of sessions to sync (in days)
+# Default: 0 (sync all sessions regardless of age)
+# Set to 30 to only sync sessions from last 30 days
+max_age_days = 0
+
+# ============================================================================
 # OPTIONAL FEATURES: Advanced Configuration
 # ============================================================================
 #
@@ -475,6 +504,32 @@ class RiffConfig:
     def routing_enabled(self) -> bool:
         """Check if routing config exists and should be used"""
         return self.qdrant_routing_config_path is not None
+
+    @property
+    def sync_enabled(self) -> bool:
+        """Check if auto-sync is enabled"""
+        return self._config.get("sync", {}).get("enabled", False)
+
+    @property
+    def sync_interval_hours(self) -> int:
+        """Get sync interval in hours (1, 3, 6, 12, or 24)"""
+        interval = self._config.get("sync", {}).get("interval_hours", 6)
+        # Validate interval
+        valid_intervals = [1, 3, 6, 12, 24]
+        if interval not in valid_intervals:
+            print(f"Warning: Invalid sync_interval_hours={interval}, using default 6")
+            return 6
+        return interval
+
+    @property
+    def sync_min_changes(self) -> int:
+        """Get minimum number of changed files to trigger sync"""
+        return self._config.get("sync", {}).get("min_changes_threshold", 1)
+
+    @property
+    def sync_max_age_days(self) -> int:
+        """Get maximum age of sessions to sync (0 = all)"""
+        return self._config.get("sync", {}).get("max_age_days", 0)
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get arbitrary config value"""
