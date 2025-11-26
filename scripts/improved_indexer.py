@@ -202,25 +202,61 @@ def index_session_improved(client: QdrantClient, model: SentenceTransformer,
 
 def main():
     """Re-index Claude sessions with improved extraction"""
+    import argparse
+    import os
+    import sys
+
+    # Add parent src to path for imports
+    sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+    parser = argparse.ArgumentParser(description="Index Claude sessions to Qdrant")
+    parser.add_argument("--qdrant-url", help="Qdrant server URL (uses router config if not specified)")
+    parser.add_argument("--sessions-dir", help="Path to sessions directory (default: ~/.claude/projects)")
+    args = parser.parse_args()
+
     print("🚀 Improved Claude Session Indexer\n")
 
+    # Get Qdrant URL - use router if not specified
+    if args.qdrant_url:
+        qdrant_url = args.qdrant_url
+        print(f"📡 Using explicit Qdrant URL: {qdrant_url}")
+    else:
+        try:
+            from riff.search.router import get_best_qdrant_url
+            qdrant_url = get_best_qdrant_url(force_check=True)
+            print(f"📡 Using router-selected Qdrant: {qdrant_url}")
+        except ImportError:
+            # Fallback if router not available
+            qdrant_url = os.environ.get("QDRANT_URL", "http://localhost:6333")
+            print(f"📡 Using Qdrant URL: {qdrant_url}")
+
     # Setup
-    client = QdrantClient(url="http://localhost:6333")
+    client = QdrantClient(url=qdrant_url)
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
     # Find sessions
-    claude_dir = Path.home() / ".claude" / "projects"
+    if args.sessions_dir:
+        claude_dir = Path(args.sessions_dir).expanduser()
+    else:
+        claude_dir = Path.home() / ".claude" / "projects"
+
+    print(f"📂 Scanning: {claude_dir}")
     sessions = list(claude_dir.glob("**/*.jsonl"))
 
     print(f"📁 Found {len(sessions)} session files\n")
 
     # Index
     success_count = 0
-    for session_file in sessions:
+    for i, session_file in enumerate(sessions, 1):
+        print(f"[{i}/{len(sessions)}] Indexing {session_file.name[:40]}...", end=" ")
         if index_session_improved(client, model, session_file):
             success_count += 1
+            print("✓")
+        else:
+            print("✗")
 
     print(f"\n✅ Successfully indexed {success_count}/{len(sessions)} sessions")
+    print(f"📡 Target: {qdrant_url}")
 
 
 if __name__ == "__main__":

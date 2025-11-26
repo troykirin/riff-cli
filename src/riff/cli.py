@@ -10,7 +10,7 @@ from rich.console import Console
 
 from .classic import cmd_scan, cmd_fix, cmd_tui
 from .classic.commands.graph import cmd_graph as cmd_graph_classic
-from .search import QdrantSearcher, ContentPreview
+from .search import QdrantSearcher, ContentPreview, get_best_qdrant_url
 from .manifest_adapter import get_manifest_adapter
 from .enhance import IntentEnhancer
 from .graph import ConversationDAG, JSONLLoader
@@ -481,18 +481,28 @@ def _check_and_reindex_if_needed(qdrant_url: str) -> None:
 def cmd_search(args) -> int:
     """Search Claude sessions with content preview"""
     try:
-        searcher = QdrantSearcher(args.qdrant_url or "http://localhost:6333")
+        # Determine Qdrant URL: explicit flag > router > default
+        if args.qdrant_url:
+            qdrant_url = args.qdrant_url
+            console.print(f"[dim]Using explicit Qdrant URL: {qdrant_url}[/dim]")
+        else:
+            # Use router to find best endpoint (checks routing config)
+            qdrant_url = get_best_qdrant_url()
+            if qdrant_url != "http://localhost:6333":
+                console.print(f"[dim]Using federated Qdrant: {qdrant_url}[/dim]")
+
+        searcher = QdrantSearcher(qdrant_url)
 
         # Check if Qdrant is available
         if not searcher.is_available():
             console.print(
-                "[yellow]⚠️  Qdrant not available at {args.qdrant_url}[/yellow]\n"
+                f"[yellow]⚠️  Qdrant not available at {qdrant_url}[/yellow]\n"
                 "[dim]Make sure Qdrant is running. See: ~/docs/federation/PORT_REGISTRY.md[/dim]"
             )
             return 1
 
         # Auto-check and reindex if projects directory has changed
-        _check_and_reindex_if_needed(args.qdrant_url or "http://localhost:6333")
+        _check_and_reindex_if_needed(qdrant_url)
 
         # Perform search
         if args.uuid:
@@ -757,11 +767,13 @@ def cmd_graph(args) -> int:
 def cmd_browse(args) -> int:
     """Interactive vim-style conversation browser"""
     try:
-        searcher = QdrantSearcher(args.qdrant_url or "http://localhost:6333")
+        # Use router when no explicit URL provided
+        qdrant_url = args.qdrant_url or get_best_qdrant_url()
+        searcher = QdrantSearcher(qdrant_url)
 
         if not searcher.is_available():
             console.print(
-                "[yellow]⚠️  Qdrant not available[/yellow]\n"
+                f"[yellow]⚠️  Qdrant not available at {qdrant_url}[/yellow]\n"
                 "[dim]Make sure Qdrant is running.[/dim]"
             )
             return 1

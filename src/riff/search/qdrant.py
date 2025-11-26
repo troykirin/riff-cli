@@ -26,7 +26,11 @@ class SearchResult:
 
 
 class QdrantSearcher:
-    """Search Claude sessions using Qdrant vector database"""
+    """Search Claude sessions using Qdrant vector database
+
+    Uses lazy loading for the embedding model to avoid slow initialization
+    when only checking Qdrant availability or performing non-search operations.
+    """
 
     def __init__(self, qdrant_url: str = "http://localhost:6333"):
         if not QDRANT_AVAILABLE:
@@ -36,18 +40,29 @@ class QdrantSearcher:
             )
 
         self.client = QdrantClient(url=qdrant_url)
-
-        # Load embedding model from config
-        try:
-            from ..config import RiffConfig
-            config = RiffConfig()
-            model_name = config.embedding_model
-        except Exception:
-            # Fallback if config not available
-            model_name = 'BAAI/bge-small-en-v1.5'
-
-        self.model = SentenceTransformer(model_name)
         self.collection_name = "claude_sessions"
+
+        # Lazy-load embedding model (expensive operation)
+        self._model = None
+        self._model_name = None
+
+    @property
+    def model(self) -> "SentenceTransformer":
+        """Lazy-load embedding model on first access"""
+        if self._model is None:
+            # Load model name from config
+            try:
+                from ..config import RiffConfig
+                config = RiffConfig()
+                self._model_name = config.embedding_model
+            except Exception:
+                # Fallback if config not available
+                self._model_name = 'BAAI/bge-small-en-v1.5'
+
+            # Load the model (this is the expensive operation)
+            self._model = SentenceTransformer(self._model_name)
+
+        return self._model
 
     def _build_time_filter(self, days: Optional[int] = None, since: Optional[str] = None,
                           until: Optional[str] = None) -> Optional[dict]:

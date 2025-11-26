@@ -327,9 +327,13 @@ class ConversationGraphNavigator:
         except curses.error:
             pass
 
-    def _handle_navigation(self, key: int) -> bool:
+    def _handle_navigation(self, key: int, stdscr) -> bool:
         """
         Handle navigation key press.
+
+        Args:
+            key: Key code from curses
+            stdscr: Curses window object
 
         Returns:
             True to continue, False to quit
@@ -719,7 +723,7 @@ class ConversationGraphNavigator:
                 message = self.dag.get_message(current_line_item.message_id)
             else:
                 # Fallback: try to find message by content
-                for msg in self.session.all_messages:
+                for msg in self.session.messages:
                     if line_text and msg.content and msg.content[:50] in line_text:
                         message = msg
                         break
@@ -887,5 +891,5 @@ class ConversationGraphNavigator:
 
             # Handle input
             key = stdscr.getch()
-            if not self._handle_navigation(key):
+            if not self._handle_navigation(key, stdscr):
                 break

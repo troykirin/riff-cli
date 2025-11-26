@@ -28,9 +28,24 @@ architecture pattern.
 """
 
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import toml
 import os
+from dataclasses import dataclass, field
+
+
+@dataclass
+class QdrantEndpoint:
+    """Represents a Qdrant endpoint with health and performance metadata"""
+    name: str
+    url: str
+    priority: int
+    is_primary: bool = False
+    gpu_enabled: bool = False
+    platform: str = "unknown"
+    url_backup: Optional[str] = None
+    health_timeout_ms: int = 2000
+    description: str = ""
 
 
 # Default educational TOML configuration with explanation
@@ -384,6 +399,83 @@ class RiffConfig:
             False
         )
 
+    @property
+    def qdrant_routing_config_path(self) -> Optional[Path]:
+        """Get path to Qdrant routing config if it exists"""
+        # Check environment variable first
+        routing_path_env = os.environ.get("RIFF_QDRANT_ROUTING_CONFIG")
+        if routing_path_env:
+            path = Path(routing_path_env).expanduser()
+            if path.exists():
+                return path
+
+        # Check default location
+        default_path = Path.home() / ".config/nabi/riff-qdrant-routing.toml"
+        if default_path.exists():
+            return default_path
+
+        return None
+
+    def load_routing_config(self) -> Optional[Dict[str, Any]]:
+        """Load the Qdrant routing configuration file"""
+        routing_path = self.qdrant_routing_config_path
+        if routing_path is None:
+            return None
+
+        try:
+            return toml.load(routing_path)
+        except Exception as e:
+            print(f"Warning: Failed to parse routing config {routing_path}: {e}")
+            return None
+
+    def get_qdrant_endpoints(self) -> List[QdrantEndpoint]:
+        """Get list of Qdrant endpoints from routing config, sorted by priority"""
+        routing_config = self.load_routing_config()
+        if routing_config is None:
+            # Fallback to single endpoint from qdrant config section
+            return [QdrantEndpoint(
+                name="default",
+                url=self.qdrant_endpoint,
+                priority=1,
+                is_primary=True,
+                platform="local"
+            )]
+
+        endpoints = []
+        for ep_config in routing_config.get("endpoints", []):
+            # Handle nested health config
+            health_config = ep_config.get("health", {})
+            timeout_ms = health_config.get("timeout_ms", 2000)
+
+            endpoint = QdrantEndpoint(
+                name=ep_config.get("name", "unknown"),
+                url=ep_config.get("url", "http://localhost:6333"),
+                priority=ep_config.get("priority", 99),
+                is_primary=ep_config.get("is_primary", False),
+                gpu_enabled=ep_config.get("gpu_enabled", False),
+                platform=ep_config.get("platform", "unknown"),
+                url_backup=ep_config.get("url_backup"),
+                health_timeout_ms=timeout_ms,
+                description=ep_config.get("description", "")
+            )
+            endpoints.append(endpoint)
+
+        # Sort by priority (lower = higher priority)
+        endpoints.sort(key=lambda e: e.priority)
+        return endpoints
+
+    def get_primary_qdrant_url(self) -> str:
+        """Get the primary (highest priority) Qdrant URL from routing config"""
+        endpoints = self.get_qdrant_endpoints()
+        if endpoints:
+            return endpoints[0].url
+        return self.qdrant_endpoint
+
+    @property
+    def routing_enabled(self) -> bool:
+        """Check if routing config exists and should be used"""
+        return self.qdrant_routing_config_path is not None
+
     def get(self, key: str, default: Any = None) -> Any:
         """Get arbitrary config value"""
         keys = key.split(".")
@@ -433,3 +525,13 @@ def get_qdrant_endpoint() -> str:
 def get_paths() -> Dict[str, Path]:
     """Get XDG-compliant paths from config"""
     return get_config().paths
+
+
+def get_qdrant_endpoints() -> List[QdrantEndpoint]:
+    """Get list of Qdrant endpoints from routing config"""
+    return get_config().get_qdrant_endpoints()
+
+
+def get_primary_qdrant_url() -> str:
+    """Get the primary Qdrant URL (respects routing config if present)"""
+    return get_config().get_primary_qdrant_url()

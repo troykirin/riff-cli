@@ -1,0 +1,279 @@
+# Riff-CLI Platform Tool Manifest
+# Semantic search + JSONL repair for conversation archives
+
+[tool]
+name = "riff-cli"
+version = "2.0.0"
+description = "Semantic search engine for Claude conversations with JSONL repair capabilities"
+status = "production"
+owner = "platform-team"
+launched = "2025-10-26"
+category = "semantic-search"
+
+[classification]
+# Tool type (not a service)
+type = "cli"
+runtime = "python"
+python_version = "3.13+"
+executable = true
+
+# Capability tags
+capabilities = [
+  "semantic-search",
+  "conversation-analysis",
+  "jsonl-repair",
+  "dag-analysis",
+  "corruption-detection",
+  "duplicate-detection",
+  "visualization",
+  "interactive-tui",
+]
+
+[executable]
+# Entry point
+main = "src/riff/__main__.py"
+command_name = "riff"
+
+# How to invoke this tool (XDG-compliant federation standard)
+invocation = "~/.nabi/venvs/riff-cli/bin/python -m riff"
+
+# Alternative: direct nabi integration (preferred for users)
+nabi_command = "nabi exec riff"
+
+# Alternative: via uv (if uv sync has been run)
+uv_command = "uv run riff"
+
+[dependencies]
+# Python dependencies
+python_packages = [
+  "python>=3.13",
+  "rich>=13.0.0",
+  "prompt-toolkit>=3.0.0",
+  "rapidfuzz>=3.0.0",
+  "toml>=0.10.2",
+  "surrealdb>=1.0.6",
+]
+
+# Optional dependencies
+optional_packages = [
+  "qdrant-client>=1.7.0",
+  "sentence-transformers>=2.2.0",
+]
+
+# External services (optional)
+services = [
+  "qdrant (optional for semantic search)",
+  "surrealdb (optional for event store)",
+]
+
+# System requirements
+system = [
+  "python3.13+",
+  "pip or uv",
+  "standard library only (no system deps)",
+]
+
+[features]
+# Core capabilities
+semantic_search = {
+  description = "Search conversations by semantic meaning with Qdrant",
+  status = "production",
+}
+
+jsonl_repair = {
+  description = "Repair corrupted Claude JSONL files",
+  status = "production",
+}
+
+conversation_dag = {
+  description = "Analyze message threading and relationships",
+  status = "production",
+}
+
+corruption_detection = {
+  description = "Detect and score message corruption",
+  status = "production",
+}
+
+duplicate_detection = {
+  description = "Detect and deduplicate tool_result messages",
+  status = "production",
+}
+
+visualization = {
+  description = "Interactive DAG visualization with riff-dag-tui",
+  status = "production",
+}
+
+interactive_tui = {
+  description = "Vim-style navigation and interactive browser",
+  status = "production",
+}
+
+fuzzy_fallback = {
+  description = "Fuzzy search fallback when semantic fails",
+  status = "production",
+}
+
+auto_reindex = {
+  description = "Automatic reindexing on Claude project changes",
+  status = "production",
+}
+
+[performance]
+# Baseline performance characteristics
+search_latency_ms = 100  # Per-query latency
+index_build_time_per_100k_messages = 300000  # Milliseconds
+memory_footprint_mb = 512  # Typical usage
+max_conversation_size = 1000000  # Messages
+
+[integration]
+# Integration with platform
+federation_enabled = true  # Now includes memory/manifest integration
+
+# Can emit events
+emits_events = true  # Memory producer integration
+
+# Can register with services
+service_registration = true  # Nabi CLI discovery
+
+# Input/output formats
+input_formats = [
+  "jsonl",
+  "json",
+]
+
+output_formats = [
+  "json",
+  "jsonl",
+  "text",
+  "markdown",
+  "mermaid",
+  "dot",
+]
+
+[api]
+# Public commands
+commands = [
+  "search",
+  "browse",
+  "visualize",
+  "graph",
+  "graph-classic",
+  "scan",
+  "fix",
+  "tui",
+  "sync:surrealdb",
+]
+
+# Command examples
+examples = [
+  "riff search 'authentication flow' --limit 10",
+  "riff browse --limit 20",
+  "riff visualize <session-id>",
+  "riff graph <session-id> --interactive",
+  "riff scan --glob '**/*.jsonl' --show",
+  "riff fix broken.jsonl --in-place",
+  "riff sync:surrealdb <session-id> --dry-run",
+]
+
+[testing]
+test_framework = "pytest"
+test_command = "pytest tests/"
+coverage_target = 80
+
+# Test files
+test_directory = "tests/"
+
+[documentation]
+# Key documentation files
+readme = "README.md"
+architecture = "docs/ARCHITECTURE.md"
+quick_start = "QUICK_START.md"
+changelog = "CHANGELOG.md"
+
+[distribution]
+# How to distribute/install
+type = "python-module"
+source = "~/nabia/tools/riff-cli"
+
+# Installation method
+install_command = "cd ~/nabia/tools/riff-cli && uv sync"
+
+# Binary distribution
+binary_release = true
+binary_spec = "riff.spec"
+homebrew_formula = ".release/homebrew-formula.rb"
+
+# Docker support (optional)
+dockerizable = true
+docker_base = "python:3.13-alpine"
+
+[opencore]
+# OpenCore readiness
+required_for_launch = false
+optional_for_launch = true
+launch_phase = "wave-1"
+launch_priority = 3
+notes = "Platform tool for semantic search - enhances developer experience but not required for core services"
+
+[migration]
+# Migration tracking
+source_location = "~/nabia/tools/riff-cli"
+target_location = "~/nabia/tools/riff-cli"  # Canonical location
+migration_status = "canonical"
+
+# What changed
+changes = [
+  "Formalized as platform tool",
+  "Added manifest.toml",
+  "Added visualization module",
+  "Added duplicate detection",
+  "Added config management",
+  "Added memory producer integration",
+  "Added manifest adapter",
+  "Binary release ready",
+]
+
+# Backwards compatibility
+breaking_changes = false
+deprecations = []
+
+[metadata]
+# Additional metadata
+keywords = ["semantic-search", "conversations", "jsonl", "repair", "analysis", "dag", "visualization"]
+maintainers = ["platform-team"]
+license = "Apache-2.0"
+
+# Links
+documentation_url = "~/nabia/tools/riff-cli/README.md"
+source_url = "https://github.com/your-org/riff-cli"  # Update as needed
+
+[platform_integration]
+# How this tool integrates with platform services
+
+# Register with nabi CLI discovery
+discoverable = true
+discovery_namespace = "riff"
+
+# Federation integration
+nats_aware = false
+loki_aware = false
+memory_kb_aware = true  # Uses memory producer
+
+# Data it may need
+data_sources = [
+  "claude-conversations (JSONL)",
+  "session-files (JSON)",
+  "qdrant-vector-store (optional)",
+  "surrealdb-event-store (optional)",
+]
+
+# Outputs it produces
+data_outputs = [
+  "search-results (JSON)",
+  "repaired-files (JSONL)",
+  "analysis-reports (JSON)",
+  "dag-graphs (Mermaid/DOT)",
+  "memory-events (JSON)",
+]

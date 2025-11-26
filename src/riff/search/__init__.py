@@ -2,5 +2,6 @@
 
 from .qdrant import QdrantSearcher
 from .preview import ContentPreview
+from .router import QdrantRouter, get_router, get_best_qdrant_url
 
-__all__ = ["QdrantSearcher", "ContentPreview"]
+__all__ = ["QdrantSearcher", "ContentPreview", "QdrantRouter", "get_router", "get_best_qdrant_url"]
