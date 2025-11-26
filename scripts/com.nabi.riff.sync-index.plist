@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.nabi.riff.sync-index</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/tryk/nabia/tools/riff-cli/scripts/sync-index.sh</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <!-- Run every 6 hours -->
+        <key>Hour</key>
+        <integer>0</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>6</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>12</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>18</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/tryk/.local/state/nabi/riff/sync-index-launchd.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/tryk/.local/state/nabi/riff/sync-index-launchd.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/tryk/.local/bin</string>
+        <key>QDRANT_URL</key>
+        <string>http://wsl.tail4f3a5b.ts.net:6333</string>
+    </dict>
+
+    <key>ThrottleInterval</key>
+    <integer>3600</integer>
+
+    <key>Nice</key>
+    <integer>10</integer>
+</dict>
+</plist>
