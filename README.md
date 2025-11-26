@@ -1,12 +1,26 @@
-# Riff CLI v2.0 - Teaching-First NabiOS Onboarding Tool
+# Riff CLI v2.0
+
+> **Part of the NabiOS Ecosystem** • [🔗 Founder: @troykirin](https://github.com/troykirin) • [🔗 Organization: NabiaTech](https://github.com/NabiaTech)
+
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.13+-green.svg)](https://www.python.org/)
+[![Repository](https://img.shields.io/badge/repository-troykirin%2Friff--cli-black)](https://github.com/troykirin/riff-cli)
 
 **Your gateway to the XDG Base Directory Specification + Unified Claude conversation search + JSONL repair toolkit**
 
-Riff is more than a tool—it's your **first step into NabiOS architecture**. Run it on any clean system, and it automatically teaches you why portable software requires the XDG Base Directory Specification. Search through your Claude conversations and **see the actual text snippets** you're looking for—not just file paths. Built with Python 3.13+, powered by Qdrant semantic search, with enterprise-grade architecture.
+Riff CLI is your **first step into NabiOS architecture**. Run it on any clean system, and it automatically teaches you why portable software requires the XDG Base Directory Specification. Search through your Claude conversations and **see the actual text snippets** you're looking for—not just file paths. Built with Python 3.13+, powered by Qdrant semantic search, with enterprise-grade architecture.
 
 > **Status**: ✅ v2.0 Release Ready | XDG Architecture Complete | Single-Binary Ready | Teaching-First Design
 >
 > **New in v2.0**: Automatic XDG configuration + Backup system + Duplicate detection + Educational TOML + Ready for binary distribution
+
+## Gateway to NabiOS
+
+Riff CLI is the **semantic search companion** to [**Riff DAG TUI**](https://github.com/troykirin/riff-dag-tui). Together, they form the free entry point to the NabiOS federation:
+
+- **Riff CLI** → Search and manage your Claude conversations
+- **Riff DAG TUI** → Visualize dependency graphs and federation state
+- **[NabiOS](https://github.com/NabiaTech/nabia)** → Build federation-aware applications with both tools as your foundation
 
 ## 🏗️ v2.0 Architectural Innovations
 
@@ -267,6 +281,16 @@ riff graph-classic file.jsonl --format [TAB]  # Shows: dot, mermaid
 - Auto-update mechanism
 - Windows terminal optimization
 
+## Related Projects
+
+- **[Riff DAG TUI](https://github.com/troykirin/riff-dag-tui)** - Lightweight JSONL DAG visualization (your companion tool)
+- **[NabiOS](https://github.com/NabiaTech/nabia)** - Complete federation platform with both tools as the foundation
+- **[NabiaTech Organization](https://github.com/NabiaTech)** - Core infrastructure and federation services
+
 ## License
 
-This project is part of the Nabia ecosystem and follows its licensing terms.
+This project is part of the NabiOS ecosystem and follows its licensing terms (MIT OR Apache-2.0).
+
+---
+
+**Made with ❤️ by [@troykirin](https://github.com/troykirin) as the semantic gateway into NabiOS**
