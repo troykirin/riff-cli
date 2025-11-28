@@ -21,6 +21,9 @@ search = [
     "qdrant-client>=1.7.0",
     "sentence-transformers>=2.2.0",
 ]
+nlp = [
+    "nltk>=3.8.0",
+]
 
 [project.scripts]
 riff = "riff.cli:main"
