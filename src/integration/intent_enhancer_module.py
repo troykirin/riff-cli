@@ -1,14 +1,28 @@
 #!/usr/bin/env python3
 """
 Standalone Intent Enhancement Module for claude-code integration
-Pure Python implementation with no external dependencies
+Enhanced with NLP stemming for improved keyword expansion
 
 This module can be directly integrated into claude-code for
-enhancing search capabilities with pattern-based keyword expansion.
+enhancing search capabilities with pattern-based keyword expansion
+and NLP stemming/lemmatization.
 """
 
-from typing import List, Dict, Any, Set
+from typing import List, Dict, Any, Set, Literal
 import re
+import warnings
+
+# Optional NLP stemming support
+try:
+    from .nlp_stemmer import NLPStemmer, has_nltk_support
+    HAS_NLP_STEMMER = True
+except ImportError:
+    HAS_NLP_STEMMER = False
+    NLPStemmer = None  # type: ignore
+
+    def has_nltk_support() -> bool:  # type: ignore[misc]
+        """Fallback when NLP stemmer unavailable."""
+        return False
 
 
 class IntentEnhancer:
@@ -18,6 +32,11 @@ class IntentEnhancer:
     This class provides pattern-based keyword expansion that transforms
     simple search intents into comprehensive keyword sets, improving
     search recall from ~4 keywords to 19+ contextually relevant terms.
+
+    Now enhanced with optional NLP stemming for:
+    - Porter stemming for basic word forms
+    - Snowball stemming for advanced variants
+    - WordNet lemmatization for semantic accuracy
     """
 
     # Domain knowledge patterns for keyword expansion
@@ -59,9 +78,39 @@ class IntentEnhancer:
         'event': ['message', 'signal', 'notification', 'trigger', 'callback']
     }
 
-    def __init__(self):
-        """Initialize the Intent Enhancer"""
+    def __init__(
+        self,
+        enable_stemming: bool = True,
+        auto_download_nltk: bool = False,
+        stemming_method: Literal["porter", "snowball", "lemmatizer"] = "porter"
+    ) -> None:
+        """
+        Initialize the Intent Enhancer.
+
+        Args:
+            enable_stemming: Enable NLP stemming if available (default: True)
+            auto_download_nltk: Auto-download NLTK data if missing (default: False)
+            stemming_method: Preferred stemming method (default: "porter")
+        """
         self._compile_patterns()
+        self._stemmer: NLPStemmer | None = None
+        self._stemming_enabled = enable_stemming and HAS_NLP_STEMMER
+        self._stemming_method = stemming_method
+
+        # Initialize NLP stemmer if available and enabled
+        if self._stemming_enabled and NLPStemmer is not None:
+            try:
+                self._stemmer = NLPStemmer(
+                    auto_download=auto_download_nltk,
+                    suppress_warnings=True
+                )
+            except Exception as e:
+                warnings.warn(
+                    f"Failed to initialize NLP stemmer: {e}. "
+                    "Falling back to pattern-based enhancement only.",
+                    UserWarning
+                )
+                self._stemming_enabled = False
 
     def _compile_patterns(self):
         """Pre-compile regex patterns for efficiency"""
@@ -102,6 +151,31 @@ class IntentEnhancer:
             "keyword_count": len(keywords)
         }
 
+    def stem_query(self, query: str) -> list[str]:
+        """
+        Stem all words in a query using NLP stemming.
+
+        This method uses the configured stemming algorithm to generate
+        stemmed variants of all words in the query. If NLP stemming is
+        unavailable, it returns the original words.
+
+        Args:
+            query: Query string to stem
+
+        Returns:
+            List of unique stemmed word variants
+
+        Examples:
+            >>> enhancer = IntentEnhancer(enable_stemming=True)
+            >>> enhancer.stem_query("running federation")
+            ["run", "running", "feder", "federation"]
+        """
+        if not self._stemming_enabled or self._stemmer is None:
+            # Return tokenized words if no stemmer available
+            return re.findall(r'\b[a-zA-Z][-a-zA-Z]*\b', query.lower())
+
+        return self._stemmer.stem_query(query)
+
     def _collect_keywords(self, intent: str, depth: int) -> Set[str]:
         """Collect all relevant keywords based on intent"""
         keywords = {intent}
@@ -114,6 +188,11 @@ class IntentEnhancer:
 
         # Add semantic variations
         keywords.update(self._generate_semantic_variations(intent))
+
+        # Add stemmed variants if stemming is enabled
+        if self._stemming_enabled and self._stemmer is not None:
+            stemmed_variants = self._generate_stemmed_variants(intent)
+            keywords.update(stemmed_variants)
 
         # Remove empty strings and None values
         return {k for k in keywords if k}
@@ -185,6 +264,73 @@ class IntentEnhancer:
 
         return keywords
 
+    def _generate_stemmed_variants(self, intent: str) -> Set[str]:
+        """
+        Generate stemmed variants of keywords using NLP stemming.
+
+        This method extracts significant words from the intent and generates
+        stemmed forms using the configured stemming algorithm.
+
+        Args:
+            intent: Intent string to process
+
+        Returns:
+            Set of stemmed word variants
+        """
+        if not self._stemmer:
+            return set()
+
+        keywords = set()
+
+        # Extract words (excluding very short words)
+        words = re.findall(r'\b[a-zA-Z]{3,}[-a-zA-Z]*\b', intent.lower())
+
+        # Generate stemmed variants for each word
+        for word in words:
+            # Add stemmed form using configured method
+            stemmed = self._stemmer.stem(word, self._stemming_method)
+            if stemmed and stemmed != word:
+                keywords.add(stemmed)
+
+            # Optionally add variants from other methods for better coverage
+            # This improves recall at the cost of some precision
+            if self._stemmer.get_capabilities()["has_porter"]:
+                porter_stem = self._stemmer.stem(word, "porter")
+                if porter_stem and porter_stem != word:
+                    keywords.add(porter_stem)
+
+        return keywords
+
+    def get_stemming_info(self) -> Dict[str, Any]:
+        """
+        Get information about stemming capabilities.
+
+        Returns:
+            Dict with stemming status and capabilities
+
+        Examples:
+            >>> enhancer = IntentEnhancer()
+            >>> info = enhancer.get_stemming_info()
+            >>> info["enabled"]
+            True
+            >>> info["method"]
+            "porter"
+        """
+        if not self._stemming_enabled or self._stemmer is None:
+            return {
+                "enabled": False,
+                "method": None,
+                "has_nltk": False,
+                "capabilities": {}
+            }
+
+        return {
+            "enabled": True,
+            "method": self._stemming_method,
+            "has_nltk": has_nltk_support(),
+            "capabilities": self._stemmer.get_capabilities()
+        }
+
     def _determine_routing(self, intent: str) -> Dict[str, Any]:
         """Determine optimal search routing strategy"""
         intent_lower = intent.lower()
@@ -252,5 +398,10 @@ def enhance_search_intent(intent: str, depth: int = 3) -> List[str]:
     return result["enhanced_keywords"]
 
 
-# Export main class and function
-__all__ = ['IntentEnhancer', 'enhance_search_intent']
+# Export main class and functions
+__all__ = [
+    'IntentEnhancer',
+    'enhance_search_intent',
+    'HAS_NLP_STEMMER',
+    'has_nltk_support',
+]
