@@ -131,6 +131,34 @@ tasks:
       - uv run pytest tests/graph/ -v --cov=riff.graph --cov-report=term-missing
     silent: false
 
+  test:scan:
+    desc: "Run all scan enhancement tests (CLI + NLP + E2E)"
+    cmds:
+      - uv run pytest tests/test_enhance_cli.py -v
+      - uv run pytest tests/test_intent_enhancer_nlp.py -v
+      - uv run pytest tests/test_nlp_stemmer.py -v
+      - uv run pytest tests/e2e/test_scan_integration.py -v
+      - echo "✅ All scan enhancement tests passed"
+    silent: false
+
+  test:scan:cli:
+    desc: "Run CLI wrapper tests only"
+    cmds:
+      - uv run pytest tests/test_enhance_cli.py -v
+    silent: false
+
+  test:scan:e2e:
+    desc: "Run end-to-end scan integration tests"
+    cmds:
+      - uv run pytest tests/e2e/test_scan_integration.py -v
+    silent: false
+
+  test:scan:nlp:
+    desc: "Run NLP stemming tests"
+    cmds:
+      - uv run pytest tests/test_nlp_stemmer.py tests/test_intent_enhancer_nlp.py -v
+    silent: false
+
   # ==========================================
   # Development
   # ==========================================
