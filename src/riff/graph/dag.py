@@ -33,26 +33,29 @@ class ConversationDAG:
         parents: Reverse adjacency list (child UUID -> parent UUID)
     """
 
-    def __init__(self, loader: ConversationStorage, session_id: str) -> None:
+    def __init__(self, loader: ConversationStorage, session_id: str, messages: list[Message] | None = None) -> None:
         """
         Initialize DAG from a session.
 
         Args:
             loader: Storage backend to load messages from
             session_id: Session UUID to analyze
+            messages: Pre-loaded messages (optional, for efficiency)
 
         Raises:
             FileNotFoundError: If session doesn't exist
-            ValueError: If session is empty
+            ValueError: If session is empty (only if messages not provided)
         """
         self.loader = loader
         self.session_id = session_id
 
-        # Load messages
-        self.messages = loader.load_messages(session_id)
-
-        if not self.messages:
-            raise ValueError(f"Session {session_id} contains no messages")
+        # Load messages if not provided
+        if messages is not None:
+            self.messages = messages
+        else:
+            self.messages = loader.load_messages(session_id)
+            if not self.messages:
+                raise ValueError(f"Session {session_id} contains no messages")
 
         # Build lookup index
         self.message_index: dict[str, Message] = {msg.uuid: msg for msg in self.messages}

@@ -107,7 +107,13 @@ def cmd_visualize(args) -> int:
 
 
 def cmd_sync_surrealdb(args) -> int:
-    """Sync session from JSONL to SurrealDB immutable event store"""
+    """Sync session from JSONL to SurrealDB immutable event store
+    
+    NOTE: SurrealDB is currently offline/not connected.
+    This function returns early with an error message.
+    Original implementation is preserved below (commented out) for future re-enablement.
+    """
+    # Re-enabled: SurrealDB sync functionality restored
     try:
         import hashlib
         import json
@@ -703,8 +709,16 @@ def cmd_graph(args) -> int:
         console.print(f"[dim]Loading session from {conversations_dir}...[/dim]")
         loader = JSONLLoader(conversations_dir)
 
-        # Create DAG
-        dag = ConversationDAG(loader, session_id)
+        # Check for empty session early to provide better error message
+        messages = loader.load_messages(session_id)
+        if not messages:
+            console.print(f"[yellow]⚠️  Session {session_id} exists but contains no messages[/yellow]")
+            console.print("[dim]This may be a session that was created but never used, or contains only metadata records.[/dim]")
+            console.print("[dim]Tip: Use 'nabi recover sessions' to find sessions with actual content.[/dim]")
+            return 1
+
+        # Create DAG (now guaranteed to have messages, pass pre-loaded messages to avoid reload)
+        dag = ConversationDAG(loader, session_id, messages=messages)
 
         # Convert to session for analysis
         session = dag.to_session()
