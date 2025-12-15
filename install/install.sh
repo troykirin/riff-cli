@@ -7,7 +7,9 @@ set -e
 
 INSTALL_DIR="$HOME/.local/bin"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SRC_DIR="$(dirname "$SCRIPT_DIR")/src"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+SRC_DIR="$PROJECT_ROOT/src"
+VENV_DIR="$HOME/.cache/nabi/venvs/riff-cli"
 
 echo "🚀 Installing Riff CLI..."
 
@@ -29,7 +31,29 @@ if ! command -v fzf >/dev/null 2>&1; then
     exit 1
 fi
 
-echo "✅ Dependencies found: nushell and fzf"
+if ! command -v uv >/dev/null 2>&1; then
+    echo "❌ Error: uv is not installed."
+    echo "   Please install uv first: https://github.com/astral-sh/uv"
+    exit 1
+fi
+
+echo "✅ Dependencies found: nushell, fzf, and uv"
+
+# Set up Python virtual environment with uv
+echo "🐍 Setting up Python virtual environment..."
+if [[ -d "$VENV_DIR" ]]; then
+    echo "   ℹ️  Using existing venv at $VENV_DIR"
+else
+    echo "   📦 Creating venv at $VENV_DIR"
+    mkdir -p "$(dirname "$VENV_DIR")"
+    uv venv "$VENV_DIR"
+fi
+
+# Install Python package into venv
+echo "📦 Installing Python package..."
+cd "$PROJECT_ROOT"
+uv pip install --python "$VENV_DIR/bin/python" -e .
+echo "   ✅ Python package installed"
 
 # Copy scripts to install directory
 echo "📦 Installing scripts..."
