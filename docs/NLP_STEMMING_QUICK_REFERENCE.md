@@ -376,7 +376,7 @@ print(f"Porter: {porter}, Snowball: {snowball}, Lemma: {lemma}")
 
 ## More Information
 
-- **Full documentation**: See `STEMMING_IMPLEMENTATION_SUMMARY.md`
+- **Full documentation**: See `reports/STEMMING_IMPLEMENTATION_SUMMARY.md`
 - **Examples**: See `examples/stemming_demo.py`
 - **Tests**: See `tests/test_nlp_stemmer.py` and `tests/test_intent_enhancer_nlp.py`
 - **Source code**: See `src/integration/nlp_stemmer.py` and `src/integration/intent_enhancer_module.py`

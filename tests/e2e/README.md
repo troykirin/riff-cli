@@ -30,7 +30,7 @@ This directory contains end-to-end integration tests for the `nabi scan` query e
 
 - Full documentation: `/Users/tryk/nabia/tools/riff-cli/docs/TEST_SUITE_DOCUMENTATION.md`
 - Quick start: `/Users/tryk/nabia/tools/riff-cli/docs/SCAN_ENHANCEMENT_QUICK_START.md`
-- Execution summary: `/Users/tryk/nabia/tools/riff-cli/TEST_EXECUTION_SUMMARY.md`
+- Execution summary: `/Users/tryk/nabia/tools/riff-cli/reports/TEST_EXECUTION_SUMMARY.md`
 
 ## Test Classes
 
