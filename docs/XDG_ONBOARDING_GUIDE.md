@@ -313,9 +313,9 @@ rsync -av ~/.config/nabi/ /backup/nabi-config/
 rsync -av --exclude=".local/state" ~/.local/share/nabi/ /backup/
 ```
 
-### 4. **Federation Coordination**
+### 4. **Lattice Coordination**
 
-The `~/.local/state/` directory enables multiple tools to coordinate without restarting:
+The `~/.local/state/` directory enables multiple tools to coordinate without restarting via the Lattice substrate layer:
 
 ```
 ~/.local/state/nabi/
@@ -330,7 +330,7 @@ The `~/.local/state/` directory enables multiple tools to coordinate without res
 Tools can:
 - Read fresh state without restarting
 - Publish events others subscribe to
-- Coordinate work across the federation
+- Coordinate work across the substrate layers (Synapse, Lattice, Aether)
 
 ### 5. **Educational Progression**
 
@@ -342,7 +342,7 @@ riff scan ~/.claude
 riff fix --in-place conversation.jsonl
 ```
 
-**Stage 2:** NabiOS Federation - multiple tools
+**Stage 2:** NabiOS Ecosystem - multiple tools
 ```bash
 nabi list                    # See all available tools
 nabi exec {tool-name}        # Run any tool with unified config
@@ -350,7 +350,7 @@ nabi exec {tool-name}        # Run any tool with unified config
 
 **Stage 3:** Advanced Coordination
 ```bash
-nabi watch --federation      # Monitor federation state
+nabi watch aether            # Monitor Aether coordination state
 nabi analyze repo            # Cross-project dependency analysis
 ```
 
@@ -366,7 +366,7 @@ Each stage builds on the previous one, and **Riff teaches the foundation**.
 - **Consistency**: All tools follow same pattern → easier to manage
 - **Backup strategy**: Know what to backup (`~/.local/share/nabi/`)
 - **Portability**: Move configs to new machines easily
-- **Federation**: Tools coordinate via `~/.local/state/`
+- **Substrate Coordination**: Tools coordinate via `~/.local/state/` (Lattice, Synapse, Aether)
 
 ### Q: Can I use different paths?
 
