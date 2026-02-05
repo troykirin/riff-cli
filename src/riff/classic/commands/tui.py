@@ -32,34 +32,66 @@ def pick_with_fzf(candidates: list[str]) -> str | None:
 
 
 def cmd_tui(args) -> int:
-    root = Path(args.target)
-    files = list_jsonl_files(root, args.glob)
-    if not files:
-        console.print("[yellow]No JSONL files found.[/yellow]")
-        return 1
+    # Import resolver functions
+    try:
+        from ...resolver import resolve_session_path, is_uuid, is_partial_uuid
+    except ImportError:
+        # Fallback if resolver not available
+        from pathlib import Path
+        def resolve_session_path(s):
+            p = Path(s)
+            return p if p.exists() else None
+        def is_uuid(s):
+            return False
+        def is_partial_uuid(s):
+            return False
 
-    choices = [str(p) for p in files]
+    # Check if target is a UUID or path
+    target_input = args.target
 
-    selected: str | None = None
-    if getattr(args, "fzf", False):
-        selected = pick_with_fzf(choices)
+    # Try to resolve as UUID first
+    if is_uuid(target_input) or is_partial_uuid(target_input):
+        resolved_path = resolve_session_path(target_input)
+        if resolved_path:
+            console.print(f"[dim]Resolved UUID to: {resolved_path}[/dim]")
+            path = resolved_path
+            # Skip file selection, go directly to inspection
+            files = [path]
+            selected = str(path)
+        else:
+            console.print(f"[red]Error: UUID not found: {target_input}[/red]")
+            console.print("[dim]Tip: Use 'riff search' to find available sessions.[/dim]")
+            return 1
+    else:
+        # Treat as directory path
+        root = Path(target_input)
+        files = list_jsonl_files(root, args.glob)
+        if not files:
+            console.print("[yellow]No JSONL files found.[/yellow]")
+            return 1
 
-    if not selected:
-        # Warn if truncating file list
-        if len(choices) > 5000:
-            console.print(f"[yellow]Warning: Showing first 5000 of {len(choices)} files[/yellow]")
-        
-        result = radiolist_dialog(
-            title="Select JSONL",
-            text="Pick a file to inspect/repair",
-            values=[(c, c) for c in choices[:5000]],
-        ).run()
-        selected = result
+        choices = [str(p) for p in files]
 
-    if not selected:
-        return 0
+        selected: str | None = None
+        if getattr(args, "fzf", False):
+            selected = pick_with_fzf(choices)
 
-    path = Path(selected)
+        if not selected:
+            # Warn if truncating file list
+            if len(choices) > 5000:
+                console.print(f"[yellow]Warning: Showing first 5000 of {len(choices)} files[/yellow]")
+
+            result = radiolist_dialog(
+                title="Select JSONL",
+                text="Pick a file to inspect/repair",
+                values=[(c, c) for c in choices[:5000]],
+            ).run()
+            selected = result
+
+        if not selected:
+            return 0
+
+        path = Path(selected)
     lines = load_jsonl_safe(path)
     
     if not lines:

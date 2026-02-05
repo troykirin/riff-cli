@@ -17,6 +17,13 @@ from .graph import ConversationDAG, JSONLLoader
 from .graph.visualizer import ConversationTreeVisualizer
 from .visualization import RiffDagTUIHandler, write_temp_jsonl
 from .config import get_config
+from .resolver import (
+    resolve_session_path,
+    is_uuid,
+    is_partial_uuid,
+    complete_session_uuids,
+    complete_session_paths,
+)
 
 console = Console()
 
@@ -79,11 +86,24 @@ class GroupedSubparsersFormatter(argparse.RawDescriptionHelpFormatter):
 def cmd_visualize(args) -> int:
     """Visualize conversation DAG with interactive riff-dag-tui viewer"""
     try:
-        jsonl_path = Path(args.input)
+        # Resolve UUID or path to actual file
+        resolved_path = resolve_session_path(args.input)
 
-        if not jsonl_path.exists():
-            console.print(f"[red]Error: File not found: {jsonl_path}[/red]")
-            return 1
+        if not resolved_path:
+            # Try as a direct path if resolution failed
+            jsonl_path = Path(args.input)
+            if not jsonl_path.exists():
+                console.print(f"[red]Error: Session not found: {args.input}[/red]")
+                if is_uuid(args.input) or is_partial_uuid(args.input):
+                    console.print("[dim]UUID could not be resolved to a session file.[/dim]")
+                    console.print("[dim]Tip: Use 'riff search' to find available sessions.[/dim]")
+                else:
+                    console.print(f"[dim]File not found: {jsonl_path}[/dim]")
+                return 1
+        else:
+            jsonl_path = resolved_path
+            if is_uuid(args.input) or is_partial_uuid(args.input):
+                console.print(f"[dim]Resolved UUID to: {jsonl_path}[/dim]")
 
         # Launch visualization
         handler = RiffDagTUIHandler()
@@ -675,35 +695,27 @@ def cmd_graph(args) -> int:
             os.environ['SURREALDB_URL'] = args.surrealdb_url
             console.print(f"[dim]Using SurrealDB backend: {args.surrealdb_url}[/dim]")
 
-        # Handle session ID or search query
-        session_id = args.session_id
+        # Resolve UUID or path to actual file
+        session_input = args.session_id
+        resolved_path = resolve_session_path(session_input)
 
-        # Check if it's a full path or just a UUID
-        if "/" in session_id or "\\" in session_id:
-            # It's a path
-            session_path = Path(session_id)
-            if not session_path.exists():
-                console.print(f"[red]Error: File not found: {session_path}[/red]")
-                return 1
-            session_id = session_path.stem
-            conversations_dir = session_path.parent
-        else:
-            # It's a UUID - look in default location from config
-            config = get_config()
-            conversations_dir = config.paths.get("conversations", Path.home() / ".claude" / "projects")
+        if not resolved_path:
+            console.print(f"[red]Error: Session not found: {session_input}[/red]")
+            if is_uuid(session_input) or is_partial_uuid(session_input):
+                console.print("[dim]UUID could not be resolved to a session file.[/dim]")
+                console.print("[dim]Tip: Use 'riff search' to find available sessions.[/dim]")
+            else:
+                console.print("[dim]Path does not exist or is not a valid session file.[/dim]")
+            return 1
 
-            # Find the session file in any subdirectory
-            found_path = None
-            for jsonl_file in conversations_dir.rglob(f"{session_id}*.jsonl"):
-                found_path = jsonl_file
-                conversations_dir = jsonl_file.parent
-                session_id = jsonl_file.stem
-                break
+        # Extract session details from resolved path
+        session_path = resolved_path
+        session_id = session_path.stem
+        conversations_dir = session_path.parent
 
-            if not found_path:
-                console.print(f"[yellow]Session {session_id} not found in {conversations_dir}[/yellow]")
-                console.print("[dim]Tip: Use full path or ensure session UUID exists[/dim]")
-                return 1
+        # Show resolution feedback for UUIDs
+        if is_uuid(session_input) or is_partial_uuid(session_input):
+            console.print(f"[dim]Resolved {session_input} → {session_path.name}[/dim]")
 
         # Load the session using JSONLLoader
         console.print(f"[dim]Loading session from {conversations_dir}...[/dim]")
@@ -842,7 +854,7 @@ def build_parser() -> argparse.ArgumentParser:
     core_fix.set_defaults(func=cmd_fix)
 
     core_tui = subparsers.add_parser("tui", help="Interactive TUI for JSONL browsing")
-    core_tui.add_argument("target", nargs="?", default=".", help="Directory to browse")
+    core_tui.add_argument("target", nargs="?", default=".", help="UUID, partial UUID (8 chars), or directory to browse")
     core_tui.add_argument("--glob", default="**/*.jsonl", help="File glob")
     core_tui.add_argument("--fzf", action="store_true", help="Use fzf for file picking")
     core_tui.set_defaults(func=cmd_tui)
@@ -851,7 +863,7 @@ def build_parser() -> argparse.ArgumentParser:
         "graph-classic",
         help="Generate conversation graph (mermaid/dot format)"
     )
-    core_graph_classic.add_argument("path", help="JSONL file path")
+    core_graph_classic.add_argument("path", help="UUID, partial UUID (8 chars), or JSONL file path")
     core_graph_classic.add_argument("--format", choices=["dot", "mermaid"], default="mermaid")
     core_graph_classic.add_argument("--out", help="Output file path")
     core_graph_classic.set_defaults(func=cmd_graph_classic)
@@ -895,7 +907,7 @@ def build_parser() -> argparse.ArgumentParser:
         "visualize",
         help="Explore conversation DAG interactively"
     )
-    p_visualize.add_argument("input", help="JSONL file to visualize")
+    p_visualize.add_argument("input", help="UUID, partial UUID (8 chars), or JSONL file path")
     p_visualize.set_defaults(func=cmd_visualize)
 
     # Graph command - new semantic DAG visualization
@@ -903,7 +915,7 @@ def build_parser() -> argparse.ArgumentParser:
         "graph",
         help="Visualize conversation as semantic DAG tree"
     )
-    p_graph.add_argument("session_id", help="Session UUID or path to JSONL file")
+    p_graph.add_argument("session_id", help="UUID, partial UUID (8 chars), or JSONL file path")
     p_graph.add_argument("--interactive", action="store_true", default=True,
                         help="Launch interactive TUI navigator (default: True)")
     p_graph.add_argument("--no-interactive", dest="interactive", action="store_false",

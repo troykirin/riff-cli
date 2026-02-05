@@ -42,11 +42,36 @@ def build_dot(lines: list[dict]) -> str:
 
 
 def cmd_graph(args) -> int:
-    path = Path(args.path)
-    if not path.exists():
-        console.print(f"[red]Error: File not found: {path}[/red]")
+    # Import resolver functions
+    try:
+        from ...resolver import resolve_session_path, is_uuid, is_partial_uuid
+    except ImportError:
+        # Fallback if resolver not available
+        def resolve_session_path(s):
+            p = Path(s)
+            return p if p.exists() else None
+        def is_uuid(s):
+            return False
+        def is_partial_uuid(s):
+            return False
+
+    # Try to resolve UUID or path
+    path_input = args.path
+    resolved_path = resolve_session_path(path_input)
+
+    if not resolved_path:
+        console.print(f"[red]Error: Session not found: {path_input}[/red]")
+        if is_uuid(path_input) or is_partial_uuid(path_input):
+            console.print("[dim]UUID could not be resolved to a session file.[/dim]")
+            console.print("[dim]Tip: Use 'riff search' to find available sessions.[/dim]")
+        else:
+            console.print(f"[dim]File not found: {Path(path_input)}[/dim]")
         return 1
-    
+
+    path = resolved_path
+    if is_uuid(path_input) or is_partial_uuid(path_input):
+        console.print(f"[dim]Resolved UUID to: {path}[/dim]")
+
     lines = load_jsonl_safe(path)
     if not lines:
         console.print(f"[yellow]Warning: No valid JSON lines found in {path}[/yellow]")
